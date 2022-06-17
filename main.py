@@ -26,6 +26,7 @@ async def on_ready():
     print(f"Logged in as {bot.user}")
 
 
+# Overwrite default error handler
 @bot.event
 async def on_application_command_error(interaction: nextcord.Interaction, error):
     pass

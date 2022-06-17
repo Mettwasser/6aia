@@ -537,6 +537,30 @@ class Warframe(commands.Cog):
                     return await interaction.send(embed=embed)
                 json_content = await resp.json()
 
+        inventory = json_content["inventory"]
+
+        if not inventory:
+            embed = nextcord.Embed(
+                title="Baro is not here yet!",
+                description=f"**Time until Baro arrives at {json_content['location']}**\n{json_content['startString']}",
+                color=bot_basic_color,
+            )
+            return await interaction.send(embed=embed)
+
+        embed = nextcord.Embed(
+            title="Baro's Inventory",
+            description="",
+            color=bot_basic_color,
+            timestamp=nextcord.utils.utcnow(),
+        )
+        for item in inventory:
+            embed.add_field(
+                name=item["item"],
+                value=f"<:ducats:885579733939667024> {item['ducats']}\n<:credits:885576185034194954> {item['credits']}",
+            )
+
+        await interaction.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Warframe(bot))
