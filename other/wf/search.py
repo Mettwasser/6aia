@@ -13,7 +13,7 @@ class JumpToPage(nextcord.ui.Modal):
         self.valid = False
 
         self.number = nextcord.ui.TextInput(
-            label="Number of orders to look up",
+            label="The page you want to jump to",
             min_length=1,
             max_length=len(str(max_pages)),
         )

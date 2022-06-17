@@ -63,7 +63,7 @@ class HelpDropdown(nextcord.ui.Select):
                 label="General", description="Commands that aim at general use."
             ),
             nextcord.SelectOption(
-                label="Games", description="Commands related to specific games."
+                label="Warframe Commands", description="Commands related to Warframe."
             ),
         ]
 
@@ -118,9 +118,9 @@ class HelpDropdown(nextcord.ui.Select):
 
 **-- Related to warframe.market --**
 
-**market search** <item_name> [platform else pc] [rank else 0] [filter else ingame] - searches for an item on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods.
+**market search** <item_name> [platform else pc] [rank else 0] [filter else ingame] - searches for an item on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods. [filter] filters search results based on the seller's status.
 
-**market searchmany** <item_name> [platform else pc] [rank else 0] [filter else ingame] - searches for an item on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods.
+**market searchmany** <item_name> [platform else pc] [rank else 0] [filter else ingame] - searches for an item on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods. [filter] filters search results based on the seller's status.
 
 **market avg** <item_name> [platform else pc] [rank else 0] - gets the average price for an item on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods.
 
