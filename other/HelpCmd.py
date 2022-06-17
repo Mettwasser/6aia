@@ -3,57 +3,6 @@ from nextcord.ext import commands
 from main import bot_basic_color
 
 
-# # Game Dropdown
-# class GameDropdown(nextcord.ui.Select):
-#     def __init__(self):
-#         # Options, only Warframe yet
-#         options = [
-#             nextcord.SelectOption(
-#                 label="Warframe", description="Commands related to Warframe"
-#             ),
-#         ]
-
-#         # min & max value = 1, so stuff can't intersect w eachother
-#         super().__init__(
-#             placeholder="Choose a Game...",
-#             min_values=1,
-#             max_values=1,
-#             options=options,
-#             row=2,
-#         )
-
-#     # When the Dropdown gets clicked (as response), this func will be called
-#     # self.values[0] will always be the label of the item the user chose
-#     async def callback(self, interaction: nextcord.Interaction):
-#         embed = nextcord.Embed(
-#             title="",
-#             description="""
-# <> : required arguments
-# [x else y] : optional arguments
-# `y = the value when x is not given`\n\n
-#         """,
-#             color=bot_basic_color,
-#         )
-#         if self.values[0] == "Warframe":
-#             embed.title = "Warframe"
-#             embed.description += """
-# **All Warframe-related commands start with the __/wf__ prefix.**
-
-# **fissures** [platform else pc] - shows you a list of all current fissures, sorted by efficiency.
-
-# **market search** <item_name> [platform else pc] [rank else 0] [filter else ingame] - searches for an item on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods.
-
-# **market searchmany** <item_name> [platform else pc] [rank else 0] [filter else ingame] - searches for an item on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods.
-
-# **market avg** <item_name> [platform else pc] [rank else 0] - gets the average price for an item on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods.
-
-#             """
-
-#         # Edit the message and set the text to the chosen category
-#         self.placeholder = self.values[0]
-#         await interaction.response.edit_message(embed=embed, view=self.view)
-
-
 class HelpDropdown(nextcord.ui.Select):
     def __init__(self):
 
@@ -105,7 +54,7 @@ class HelpDropdown(nextcord.ui.Select):
 **timeout** <member> <time> - timeouts a member from now until given time. Times are: number(s/h/d/w)
             """
 
-        elif self.values[0] == "Warframe":
+        elif self.values[0] == "Warframe Commands":
             embed.title = "Warframe Commands"
             embed.description += """
 **All Warframe-related commands start with the __/wf__ prefix.**
@@ -120,7 +69,7 @@ class HelpDropdown(nextcord.ui.Select):
 
 **market search** <item_name> [platform else pc] [rank else 0] [filter else ingame] - searches for an item on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods. [filter] filters search results based on the seller's status.
 
-**market searchmany** <item_name> [platform else pc] [rank else 0] [filter else ingame] - searches for an item on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods. [filter] filters search results based on the seller's status.
+**market searchmany** <item_name> [platform else pc] [rank else 0] [filter else ingame] - searches for multiple items on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods. [filter] filters search results based on the seller's status.
 
 **market avg** <item_name> [platform else pc] [rank else 0] - gets the average price for an item on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods.
 
@@ -136,12 +85,6 @@ class HelpDropdown(nextcord.ui.Select):
 
 **watchlist export** - exports your watchlist as a text file.
             """
-
-            # self.view.remove_item(self.view.children[1])
-            # # set self.view.games to access the GameDropdown everywhere
-            # self.view.games = GameDropdown()
-            # self.view.add_item(self.view.games)
-            # self.view.add_item(HelpCancelButton(3))
 
         # Edit the message and set the text to the chosen category
         self.placeholder = self.values[0]
