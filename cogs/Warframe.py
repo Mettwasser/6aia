@@ -558,7 +558,10 @@ class Warframe(commands.Cog):
                 name=item["item"],
                 value=f"<:ducats:885579733939667024> {item['ducats']}\n<:credits:885576185034194954> {item['credits']}",
             )
-
+        embed.set_thumbnail(
+            url="https://static.wikia.nocookie.net/warframe/images/a/a7/TennoCon2020BaroCropped.png/revision/latest/scale-to-width-down/350?cb=20200712232455"
+        )
+        embed.url = "https://warframe.fandom.com/wiki/Baro_Ki%27Teer"
         await interaction.send(embed=embed)
 
 

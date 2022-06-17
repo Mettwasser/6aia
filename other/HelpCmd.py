@@ -112,7 +112,9 @@ class HelpDropdown(nextcord.ui.Select):
 
 **fissures** [platform else pc] - shows you a list of all current fissures, sorted by efficiency.
 
-**worldstates** 
+**worldstates** - shows all current worldstates.
+
+**baro** [platform else pc] - shows you a list of Baro's item or where and when he arrives.
 
 **-- Related to warframe.market --**
 
