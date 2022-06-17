@@ -19,7 +19,7 @@ class StatusLoop(commands.Cog):
 
         if json_content["active"]:
             await self.bot.change_presence(
-                activity=nextcord.Game(name=f"Baro is here! - /baro || /help")
+                activity=nextcord.Game(name=f"Baro is here! - /wf baro || /help")
             )
 
         else:
