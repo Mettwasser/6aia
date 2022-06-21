@@ -42,4 +42,4 @@ for filename in os.listdir(R"./cogs"):
 
 # Run Bot
 if __name__ == "__main__":
-    bot.run("OTg1NjM0MzQ4ODUyMjAzNTMw.Gkqb6P.8XJ2MWpeSALrb2szkgi_8WLvE9bPjMqaX89Idc")
+    bot.run("OTg1NjM0MzQ4ODUyMjAzNTMw.GtQCYb.R64zPzOPzijaNYmVPtByIUvI98D5Ev6xJQe_7U")

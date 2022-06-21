@@ -1,6 +1,12 @@
 import asyncio, nextcord, aiohttp
 from main import bot_basic_color
 
+links = [
+    "https://api.warframestat.us/pc/cambionCycle",
+    "https://api.warframestat.us/pc/cetusCycle",
+    "https://api.warframestat.us/pc/vallisCycle",
+]
+
 
 async def get_req(url: str, session: aiohttp.ClientSession):
     async with session.get(url) as response:
@@ -8,12 +14,6 @@ async def get_req(url: str, session: aiohttp.ClientSession):
 
 
 async def cycles():
-    links = [
-        "https://api.warframestat.us/pc/cambionCycle",
-        "https://api.warframestat.us/pc/cetusCycle",
-        "https://api.warframestat.us/pc/vallisCycle",
-    ]
-
     async with aiohttp.ClientSession() as session:
         tasks = []
         for link in links:
