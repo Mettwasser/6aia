@@ -23,7 +23,7 @@ async def invasion_embed(platform: str):
 **Invasion #{c}**
 Node: {invasion["node"]}
 Attacker: {invasion["attacker"]["faction"]} | Reward: {invasion["attacker"]["reward"]["asString"]}
-Defender: {invasion["defender"]["faction"]} | Reward: {invasion["defender"]["reward"]["asString"]}\n\n
+Defender: {invasion["defender"]["faction"]} | Reward: {invasion["defender"]["reward"]["asString"]}\n
 """
 
     return embed
