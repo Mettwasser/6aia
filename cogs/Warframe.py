@@ -17,6 +17,7 @@ from other.wf.wfm_watchlist import (
     WLRemoveView,
 )
 from other.wf.worldstates import cycles
+from other.wf.sortie import sortie_embed
 
 # Item list for "autocompletion"
 HOST = "https://api.warframe.market/v1"
@@ -562,6 +563,25 @@ class Warframe(commands.Cog):
             url="https://static.wikia.nocookie.net/warframe/images/a/a7/TennoCon2020BaroCropped.png/revision/latest/scale-to-width-down/350?cb=20200712232455"
         )
         embed.url = "https://warframe.fandom.com/wiki/Baro_Ki%27Teer"
+        await interaction.send(embed=embed)
+
+    @wf.subcommand(name="sortie", description="Shows you the current sortie.")
+    async def sortie(
+        self,
+        interaction: nextcord.Interaction,
+        platform: str = nextcord.SlashOption(
+            name="platform",
+            description="The platform you're playing on.",
+            choices={
+                "playstation": "ps4",
+                "xbox": "xb1",
+                "pc": "pc",
+                "switch": "swi",
+            },
+            default="pc",
+        ),
+    ):
+        embed = await sortie_embed(platform)
         await interaction.send(embed=embed)
 
 
