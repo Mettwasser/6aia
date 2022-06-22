@@ -528,7 +528,8 @@ class Warframe(commands.Cog):
 
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"https://api.warframestat.us/{platform}/voidTrader"
+                f"https://api.warframestat.us/{platform}/voidTrader",
+                headers={"language": "en"},
             ) as resp:
                 if resp.status != 200:
                     embed = nextcord.Embed(

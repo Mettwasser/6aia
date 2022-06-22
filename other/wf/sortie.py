@@ -5,7 +5,7 @@ from main import bot_basic_color
 async def sortie_embed(platform: str):
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            f"https://api.warframestat.us/{platform}/sortie"
+            f"https://api.warframestat.us/{platform}/sortie", headers={"language": "en"}
         ) as resp:
             if resp.status != 200:
                 return nextcord.Embed(

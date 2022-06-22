@@ -9,7 +9,7 @@ links = [
 
 
 async def get_req(url: str, session: aiohttp.ClientSession):
-    async with session.get(url) as response:
+    async with session.get(url, headers={"language": "en"}) as response:
         return await response.json()
 
 
