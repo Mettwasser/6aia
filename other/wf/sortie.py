@@ -16,7 +16,7 @@ async def sortie_embed(platform: str):
 
             r = await resp.json()
 
-    title = f"Current Sortie ({platform})"
+    title = f"Current Sortie"
 
     missions = [
         [

@@ -67,6 +67,8 @@ class HelpDropdown(nextcord.ui.Select):
 
 **sortie** [platform else pc] - shows you the current sortie.
 
+**invasions** [platform else pc] - shows you the current invasions.
+
 **-- Related to warframe.market --**
 
 **market search** <item_name> [platform else pc] [rank else 0] [filter else ingame] - searches for an item on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods. [filter] filters search results based on the seller's status.

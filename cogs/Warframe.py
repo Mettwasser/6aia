@@ -18,6 +18,7 @@ from other.wf.wfm_watchlist import (
 )
 from other.wf.worldstates import cycles
 from other.wf.sortie import sortie_embed
+from other.wf.invasions import invasion_embed
 
 # Item list for "autocompletion"
 HOST = "https://api.warframe.market/v1"
@@ -582,6 +583,25 @@ class Warframe(commands.Cog):
         ),
     ):
         embed = await sortie_embed(platform)
+        await interaction.send(embed=embed)
+
+    @wf.subcommand(name="invasions", description="Shows you the current invasions.")
+    async def invasions(
+        self,
+        interaction: nextcord.Interaction,
+        platform: str = nextcord.SlashOption(
+            name="platform",
+            description="The platform you're playing on.",
+            choices={
+                "playstation": "ps4",
+                "xbox": "xb1",
+                "pc": "pc",
+                "switch": "swi",
+            },
+            default="pc",
+        ),
+    ):
+        embed = await invasion_embed(platform)
         await interaction.send(embed=embed)
 
 
