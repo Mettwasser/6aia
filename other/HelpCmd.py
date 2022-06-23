@@ -50,8 +50,6 @@ class HelpDropdown(nextcord.ui.Select):
 **help** - shows this message.
 
 **ping** - gives you the ping of the bot in milliseconds.
-
-**timeout** <member> <time> - timeouts a member from now until given time. Times are: number(s/h/d/w)
             """
 
         elif self.values[0] == "Warframe Commands":

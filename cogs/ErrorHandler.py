@@ -1,3 +1,4 @@
+from discord import Forbidden
 import nextcord
 from nextcord.ext import commands, application_checks
 from nextcord.errors import ApplicationCheckFailure, ApplicationInvokeError
@@ -58,6 +59,11 @@ class ErrorHandler(commands.Cog):
                 await interaction.send(
                     f"You do not have the required permissions to use this command.\n"
                     f"Required Permission{'s' if len(m_perms) > 1 else ''}: {', '.join(m_perms)}"
+                )
+
+            elif isinstance(error, Forbidden):
+                await interaction.send(
+                    "I do not have permissions for that. Check the role hierarchy or my permissions!"
                 )
 
             # Catches everything else
