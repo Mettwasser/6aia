@@ -326,9 +326,9 @@ class Warframe(commands.Cog):
     ):
         url_name = set_item_urlname(actual_name)
         items = await get_wl_items(interaction)
-        if len(items) >= 10:
+        if len(items) >= 3:
             return await interaction.send(
-                "You can only have 10 items to your watchlist!"
+                "You can only have 3 items to your watchlist!"
             )
         try:
             async with aiohttp.ClientSession() as session:

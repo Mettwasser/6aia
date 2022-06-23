@@ -1,6 +1,6 @@
-from discord import ApplicationCheckFailure
 import nextcord
 from nextcord.ext import commands, application_checks
+from nextcord.errors import ApplicationCheckFailure, ApplicationInvokeError
 
 
 class ErrorHandler(commands.Cog):
@@ -40,6 +40,29 @@ class ErrorHandler(commands.Cog):
 
             # Catches everything else
             else:
+                await interaction.send(
+                    f"```Ignoring exception in command {interaction.application_command}\n{type(error)} {error} {error.__traceback__}```\nReport to dev.",
+                    ephemeral=True,
+                )
+
+        elif isinstance(error, ApplicationInvokeError):
+            error = error.original
+
+            if isinstance(error, application_checks.ApplicationBotMissingPermissions):
+                await interaction.send(
+                    "I do not have permissions for that. Check the role hierarchy or my permissions!"
+                )
+
+            elif isinstance(error, application_checks.ApplicationMissingPermissions):
+                m_perms = error.missing_permissions
+                await interaction.send(
+                    f"You do not have the required permissions to use this command.\n"
+                    f"Required Permission{'s' if len(m_perms) > 1 else ''}: {', '.join(m_perms)}"
+                )
+
+            # Catches everything else
+            else:
+                print("Error handled")
                 await interaction.send(
                     f"```Ignoring exception in command {interaction.application_command}\n{type(error)} {error} {error.__traceback__}```\nReport to dev.",
                     ephemeral=True,

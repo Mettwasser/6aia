@@ -2,7 +2,7 @@ import asyncio
 import asqlite, aiohttp, nextcord
 from discord import Interaction
 from ..utils import disable_buttons
-from .utils import ModRankError, check_mod_rank, HOST, is_mod
+from .utils import ModRankError, check_mod_rank, HOST
 from main import bot_basic_color
 from nextcord.ext import application_checks
 from io import StringIO
