@@ -42,8 +42,8 @@ async def vf(platform):
     should_run = []
     for i in sorted(filter(is_efficient, rj), key=lambda x: x["tierNum"]):
         x = (
-            f"{i['tier']} Relic"
-            + f" {i['missionType']}"
+            f"{i['tier']} -"
+            + f" {i['missionType']} :"
             + f" {i['node']}"
             + f" - {i['eta']}"
         )
@@ -56,8 +56,8 @@ async def vf(platform):
         key=lambda x: x["tierNum"],
     ):
         x = (
-            f"{i['tier']} Relic"
-            + f" {i['missionType']}"
+            f"{i['tier']} -"
+            + f" {i['missionType']} :"
             + f" {i['node']}"
             + f" - {i['eta']}"
         )
