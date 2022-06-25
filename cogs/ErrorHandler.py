@@ -68,7 +68,6 @@ class ErrorHandler(commands.Cog):
 
             # Catches everything else
             else:
-                print("Error handled")
                 await interaction.send(
                     f"```Ignoring exception in command {interaction.application_command}\n{type(error)} {error} {error.__traceback__}```\nReport to dev.",
                     ephemeral=True,
