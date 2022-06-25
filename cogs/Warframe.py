@@ -19,6 +19,7 @@ from other.wf.wfm_watchlist import (
 from other.wf.worldstates import cycles
 from other.wf.sortie import sortie_embed
 from other.wf.invasions import invasion_embed
+from other.wf.arbi import build_arbi_embed
 
 # Item list for "autocompletion"
 HOST = "https://api.warframe.market/v1"
@@ -264,8 +265,8 @@ class Warframe(commands.Cog):
     ):
         actual_name = url_name
         url_name = set_item_urlname(url_name)
-        item_is_mod = await is_mod(url_name)
         try:
+            item_is_mod = await is_mod(url_name)
             avg_price, total_sales = await get_avg(
                 platform, url_name, actual_name, mod_rank
             )
@@ -603,6 +604,27 @@ class Warframe(commands.Cog):
         ),
     ):
         embed = await invasion_embed(platform)
+        await interaction.send(embed=embed)
+
+    @wf.subcommand(
+        name="arbi", description="Shows you the current Arbitration. (Unstable)"
+    )
+    async def arbi(
+        self,
+        interaction: nextcord.Interaction,
+        platform: str = nextcord.SlashOption(
+            name="platform",
+            description="The platform you're playing on.",
+            choices={
+                "playstation": "ps4",
+                "xbox": "xb1",
+                "pc": "pc",
+                "switch": "swi",
+            },
+            default="pc",
+        ),
+    ):
+        embed = await build_arbi_embed(platform)
         await interaction.send(embed=embed)
 
 
