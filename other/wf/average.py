@@ -41,10 +41,20 @@ async def get_avg(
         for item_sold in r:
             price_of_all += item_sold["avg_price"]
 
+        for x in r:
+            try:
+                moving_avg = x["moving_avg"]
+                break
+            except KeyError:
+                continue
+
+        if "moving_avg" not in locals():
+            moving_avg = "-"
+
         avg_price = round((price_of_all / total), 1)
         if session_created:
             await session.close()
-        return (avg_price, total)
+        return (avg_price, total, moving_avg)
     except Exception as e:
         if session_created:
             await session.close()

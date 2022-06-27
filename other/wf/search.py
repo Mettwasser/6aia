@@ -3,6 +3,7 @@ from typing import Iterable
 import nextcord
 from other.utils import disable_buttons
 from main import bot_basic_color
+from .wfm_watchlist import to_item_name
 
 from other.wf.utils import is_mod
 
@@ -111,8 +112,10 @@ class WFBrowser(nextcord.ui.View):
             wiki_link = include[0]["en"]["wiki_link"]
 
             embed = nextcord.Embed(color=bot_basic_color)
-            embed.title = f"Offer #{self.page} for {self.item_name}".format(
-                str(self.item_name)
+            embed.title = (
+                f"Offer #{self.page} for {to_item_name(self.url_name)}".format(
+                    str(self.item_name)
+                )
             )
             embed.url = f"https://warframe.market/items/{self.url_name}"
             embed.add_field(name="Order Type", value="{}".format(order_type))
@@ -364,7 +367,9 @@ def single_search_form_embed(
     wiki_link = include[0]["en"]["wiki_link"]
 
     embed = nextcord.Embed(color=bot_basic_color)
-    embed.title = "Cheapest offer for {} on warframe.market".format(item_name)
+    embed.title = "Cheapest offer for {} on warframe.market".format(
+        to_item_name(item_name)
+    )
     embed.add_field(name="Order Type", value="{}".format(order_type))
     embed.add_field(name="Price", value="{}p".format(plat_cost))
     embed.add_field(name="Quantity", value="{}".format(quantity))

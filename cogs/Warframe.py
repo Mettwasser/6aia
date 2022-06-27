@@ -71,7 +71,7 @@ class Warframe(commands.Cog):
     async def search(
         self,
         interaction: nextcord.Interaction,
-        url_name: str = nextcord.SlashOption(
+        actual_name: str = nextcord.SlashOption(
             name="item_name",
             description="The item name to search for",
             autocomplete_callback=wfm_autocomplete,
@@ -99,8 +99,7 @@ class Warframe(commands.Cog):
             default="ingame",
         ),
     ):
-        actual_name = url_name
-        url_name = set_item_urlname(url_name)
+        url_name = set_item_urlname(actual_name)
 
         async with aiohttp.ClientSession() as session:
             try:
@@ -124,7 +123,7 @@ class Warframe(commands.Cog):
                     search_filter,
                     mod_rank,
                     json_content,
-                    actual_name,
+                    url_name,
                 )
                 await interaction.send(content=None, embed=embed)
 
@@ -153,7 +152,7 @@ class Warframe(commands.Cog):
     async def searchmany(
         self,
         interaction: nextcord.Interaction,
-        url_name: str = nextcord.SlashOption(
+        actual_name: str = nextcord.SlashOption(
             name="item_name",
             description="The item name to search for",
             autocomplete_callback=wfm_autocomplete,
@@ -181,8 +180,7 @@ class Warframe(commands.Cog):
             default="ingame",
         ),
     ):
-        actual_name = url_name
-        url_name = set_item_urlname(url_name)
+        url_name = set_item_urlname(actual_name)
 
         async with aiohttp.ClientSession() as session:
             try:
@@ -241,7 +239,7 @@ class Warframe(commands.Cog):
     async def avg(
         self,
         interaction: nextcord.Interaction,
-        url_name: str = nextcord.SlashOption(
+        actual_name: str = nextcord.SlashOption(
             name="item_name",
             description="The item name to search for",
             autocomplete_callback=wfm_autocomplete,
@@ -263,16 +261,15 @@ class Warframe(commands.Cog):
             default=0,
         ),
     ):
-        actual_name = url_name
-        url_name = set_item_urlname(url_name)
+        url_name = set_item_urlname(actual_name)
         try:
             item_is_mod = await is_mod(url_name)
-            avg_price, total_sales = await get_avg(
+            avg_price, total_sales, moving_avg = await get_avg(
                 platform, url_name, actual_name, mod_rank
             )
             embed = nextcord.Embed(color=bot_basic_color)
-            embed.title = f"Average price of {actual_name} {'(R{})'.format(mod_rank) if item_is_mod else ''}"
-            embed.description = f"Average price: **{avg_price}**\n**{total_sales}** sales in the last 48 hours"
+            embed.title = f"Average price of {to_item_name(url_name)} {'(R{})'.format(mod_rank) if item_is_mod else ''}"
+            embed.description = f"Average price: **{avg_price}**\n**{total_sales}** sales in the last 48 hours\nMoving average: **{moving_avg}**"
             await interaction.send(embed=embed)
 
         except KeyError:
