@@ -79,6 +79,10 @@ class WFBrowser(nextcord.ui.View):
     async def interaction_check(self, interaction: nextcord.Interaction) -> bool:
         return self.initial_interaction.user == interaction.user
 
+    async def on_timeout(self) -> None:
+        disable_buttons(self)
+        await self.msg.edit(view=self)
+
     def form_embed(self):
         self.children[2].label = f"{self.page}/{self.max_orders}"
         if not self.current in self.cached_embeds:
