@@ -97,7 +97,6 @@ class Admin(commands.Cog):
             "dnd": nextcord.Status.dnd,
         }
         s = statuses[status]
-        print(status)
         if mode == "replace":
             await self.bot.change_presence(status=s, activity=nextcord.Game(text))
         elif mode == "add":

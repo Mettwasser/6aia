@@ -31,7 +31,6 @@ class JumpToPage(nextcord.ui.Modal):
 
     async def on_timeout(self) -> None:
         self.timeout_triggered = True
-        self.stop()
 
 
 class WFBrowser(nextcord.ui.View):
@@ -264,70 +263,72 @@ class WFBrowser(nextcord.ui.View):
                 "You didn't enter anything -> Interaction cancelled.", ephemeral=True
             )
         else:
-            await interaction.send(f"{modal.number.value} is not a valid Page!")
-
-
-# The Modal to be called when the Command is called, after a response WFBrowser is started.
-class BrowserInit(nextcord.ui.Modal):
-    def __init__(
-        self,
-        json_content: Iterable,
-        item_name: str,
-        url_name: str,
-        initial_interaction: nextcord.Interaction,
-        search_filter: str,
-        mod_rank: int,
-    ):
-        super().__init__(title="WFM Search", timeout=60 * 2)
-
-        self.json_content = json_content
-        self.item_name = item_name
-        self.url_name = url_name
-        self.initial_interaction = initial_interaction
-        self.search_filter = search_filter
-        self.mod_rank = mod_rank
-
-        self.number = nextcord.ui.TextInput(
-            label="Number of orders to look up", min_length=1, max_length=2
-        )
-        self.add_item(self.number)
-
-    async def callback(self, interaction: nextcord.Interaction):
-        if self.number.value is None:
-            return await interaction.send(
-                "You did not enter the amount of orders you want -> Command cancelled.",
-                ephemeral=True,
-            )
-        amount_of_orders = int(self.number.value)
-        view = WFBrowser(
-            self.json_content,
-            amount_of_orders,
-            self.item_name,
-            self.url_name,
-            self.initial_interaction,
-            self.search_filter,
-            self.mod_rank,
-        )
-        try:
-            initial_embed = (
-                view.form_embed()
-                if view.max_orders > 1
-                else single_search_form_embed(
-                    self.search_filter, self.mod_rank, self.json_content, self.item_name
-                )
-            )
-        except IndexError as e:
-            raise e
-        if view.max_orders > 1:
-            view.msg = await interaction.send(embed=initial_embed, view=view)
-        else:
-            await interaction.send(embed=initial_embed)
-
-    async def on_error(self, error: Exception, interaction) -> None:
-        if isinstance(error, IndexError):
             await interaction.send(
-                f"{self.item_name} has no listings! (filter: {self.search_filter}{', rank: {}'. format(self.mod_rank) if await is_mod(self.url_name) else ''})"
+                f"{modal.number.value} is not a valid Page!", ephemeral=True
             )
+
+
+# # The Modal to be called when the Command is called, after a response WFBrowser is started.
+# class BrowserInit(nextcord.ui.Modal):
+#     def __init__(
+#         self,
+#         json_content: Iterable,
+#         item_name: str,
+#         url_name: str,
+#         initial_interaction: nextcord.Interaction,
+#         search_filter: str,
+#         mod_rank: int,
+#     ):
+#         super().__init__(title="WFM Search", timeout=60 * 2)
+
+#         self.json_content = json_content
+#         self.item_name = item_name
+#         self.url_name = url_name
+#         self.initial_interaction = initial_interaction
+#         self.search_filter = search_filter
+#         self.mod_rank = mod_rank
+
+#         self.number = nextcord.ui.TextInput(
+#             label="Number of orders to look up", min_length=1, max_length=2
+#         )
+#         self.add_item(self.number)
+
+#     async def callback(self, interaction: nextcord.Interaction):
+#         if self.number.value is None:
+#             return await interaction.send(
+#                 "You did not enter the amount of orders you want -> Command cancelled.",
+#                 ephemeral=True,
+#             )
+#         amount_of_orders = int(self.number.value)
+#         view = WFBrowser(
+#             self.json_content,
+#             amount_of_orders,
+#             self.item_name,
+#             self.url_name,
+#             self.initial_interaction,
+#             self.search_filter,
+#             self.mod_rank,
+#         )
+#         try:
+#             initial_embed = (
+#                 view.form_embed()
+#                 if view.max_orders > 1
+#                 else single_search_form_embed(
+#                     self.search_filter, self.mod_rank, self.json_content, self.item_name
+#                 )
+#             )
+#         except IndexError as e:
+#             raise e
+#         if view.max_orders > 1:
+#             view.msg = await interaction.send(embed=initial_embed, view=view)
+#         else:
+#             await interaction.send(embed=initial_embed)
+
+#     async def on_error(self, error: Exception, interaction) -> None:
+#         if isinstance(error, IndexError):
+#             await interaction.send(
+#                 f"{self.item_name} has no listings! (filter: {self.search_filter}{', rank: {}'. format(self.mod_rank) if await is_mod(self.url_name) else ''})"
+#             )
 
 
 # SINGLE SEARCH

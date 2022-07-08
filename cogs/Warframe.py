@@ -4,7 +4,7 @@ from main import bot_basic_color
 from other.wf.errors import ModRankError
 from other.wf.average import get_avg
 from other.wf.void_fissures import vf
-from other.wf.search import BrowserInit, single_search_form_embed
+from other.wf.search import WFBrowser, single_search_form_embed
 from other.wf.utils import check_mod_rank, is_mod
 from other.wf.wfm_watchlist import (
     to_item_name,
@@ -157,6 +157,9 @@ class Warframe(commands.Cog):
             description="The item name to search for",
             autocomplete_callback=wfm_autocomplete,
         ),
+        amount_to_look_up: int = nextcord.SlashOption(
+            name="amount-to-look-up", description="The amount of orders to look up."
+        ),
         platform: str = nextcord.SlashOption(
             name="platform",
             description="The platform you're playing on.",
@@ -202,15 +205,33 @@ class Warframe(commands.Cog):
 
                 await check_mod_rank(session, url_name, mod_rank)
 
-                modal = BrowserInit(
+                view = WFBrowser(
                     json_content,
+                    amount_to_look_up,
                     actual_name,
                     url_name,
                     interaction,
                     search_filter,
                     mod_rank,
                 )
-                await interaction.response.send_modal(modal)
+
+                try:
+                    initial_embed = (
+                        view.form_embed()
+                        if view.max_orders > 1
+                        else single_search_form_embed(
+                            self.search_filter,
+                            self.mod_rank,
+                            self.json_content,
+                            self.item_name,
+                        )
+                    )
+                except IndexError as e:
+                    raise e
+                if view.max_orders > 1:
+                    view.msg = await interaction.send(embed=initial_embed, view=view)
+                else:
+                    await interaction.send(embed=initial_embed)
 
             except KeyError:
                 await interaction.send(
