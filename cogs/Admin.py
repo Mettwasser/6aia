@@ -1,6 +1,129 @@
+from contextlib import redirect_stdout
+import io
+import textwrap
+import traceback
 from discord import SlashOption
 import nextcord
 from nextcord.ext import commands, application_checks
+
+
+class EvalModal(nextcord.ui.Modal):
+    def __init__(self, title: str, *, timeout=120):
+        super().__init__(title, timeout=timeout)
+        self.body = nextcord.ui.TextInput(
+            label="The code to evaluate", style=nextcord.TextInputStyle.paragraph
+        )
+        self.add_item(self.body)
+
+    async def callback(self, interaction: nextcord.Interaction):
+        if self.body == "":
+            return await interaction.send("You did not enter anything -> Cancelled!")
+
+        body = self.body.value
+
+        env = {
+            "interaction": interaction,
+            "bot": self.bot,
+            "channel": interaction.channel,
+            "author": interaction.user,
+            "guild": interaction.guild,
+            "message": interaction.message,
+        }
+
+        def cleanup_code(content):
+            # remove ```py\n```
+            if content.startswith("```") and content.endswith("```"):
+                return "\n".join(content.split("\n")[1:-1])
+
+            # remove `foo`
+            return content.strip("` \n")
+
+        env.update(globals())
+
+        body = cleanup_code(body)
+        stdout = io.StringIO()
+        err = out = None
+
+        to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
+
+        def paginate(text: str):
+            last = 0
+            pages = []
+            for curr in range(0, len(text)):
+                if curr % 1980 == 0:
+                    pages.append(text[last:curr])
+                    last = curr
+                    appd_index = curr
+            if appd_index != len(text) - 1:
+                pages.append(text[last:curr])
+            return list(filter(lambda a: a != "", pages))
+
+        try:
+            exec(to_compile, env)
+        except Exception as e:
+            err = await interaction.send(f"```py\n{e.__class__.__name__}: {e}\n```")
+            return await interaction.message.add_reaction("\u2049")
+
+        func = env["func"]
+        try:
+            with redirect_stdout(stdout):
+                ret = await func()
+        except Exception as e:
+            value = stdout.getvalue()
+            err = await interaction.send(f"```py\n{value}{traceback.format_exc()}\n```")
+        else:
+            value = stdout.getvalue()
+            if ret is None:
+                if value:
+                    try:
+
+                        out = await interaction.send(
+                            f"Evaluated code:\n```py\n{body}\n```\nResult:\n```py\n{value}\n```"
+                        )
+                    except:
+                        paginated_text = paginate(value)
+                        first = True
+                        for page in paginated_text:
+                            info = (
+                                "Evaluated code:\n```py\n{}\n```\nResult:\n".format(
+                                    body
+                                )
+                                if first
+                                else ""
+                            )
+                            if page == paginated_text[-1]:
+                                out = await interaction.send(
+                                    f"{info}```py\n{page}\n```"
+                                )
+                                break
+                            await interaction.send(f"{info}```py\n{page}\n```")
+                            first = False
+            else:
+                try:
+                    out = await interaction.send(
+                        f"Evaluated code:\n```py\n{body}\n```\nResult:\n```py\n{value}{ret}\n```"
+                    )
+                except:
+                    paginated_text = paginate(f"{value}{ret}")
+                    first = True
+                    for page in paginated_text:
+                        info = (
+                            "Evaluated code:\n```py\n{}\n```\nResult:\n".format(body)
+                            if first
+                            else ""
+                        )
+                        if page == paginated_text[-1]:
+                            out = await interaction.send(f"{info}```py\n{page}\n```")
+                            break
+                        await interaction.send(f"{info}```py\n{page}\n```")
+                        first = False
+
+        if out:
+            await interaction.send("\u2705")  # tick
+        elif err:
+            await interaction.send("\u2049")  # x
+        else:
+            await interaction.send("\u2705")
 
 
 class Admin(commands.Cog):
@@ -107,9 +230,8 @@ class Admin(commands.Cog):
         await interaction.send(f"Presence changed!")
 
     @admin.subcommand(
-        description="Initializes the databases. (Owner only)",
+        description="Initializes the databases. (Owner only)", inherit_hooks=True
     )
-    @application_checks.is_owner()
     async def init(self, interaction: nextcord.Interaction):
         from .Warns import create_warn_table
         from other.wf.wfm_watchlist import create_wl_table
@@ -117,6 +239,12 @@ class Admin(commands.Cog):
         await create_warn_table()
         await create_wl_table()
         await interaction.send("All databases initialized!")
+
+    @admin.subcommand(description="Evaluates a code.", name="eval", inherit_hooks=True)
+    async def _eval(self, interaction: nextcord.Interaction):
+        modal = EvalModal("Eval Code")
+        modal.bot = self.bot
+        await interaction.response.send_modal(modal)
 
 
 def setup(bot):
