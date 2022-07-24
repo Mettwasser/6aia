@@ -1,2 +1,4 @@
 .env
 **/__pycache__/
+warns.db
+wfm_wl.db
