@@ -1,7 +1,7 @@
-import os
-import nextcord
+import os, nextcord, dotenv
 from nextcord.ext import commands
 
+dotenv.load_dotenv()
 
 bot_basic_color = 0x00A8FF
 
@@ -42,4 +42,4 @@ for filename in os.listdir(R"./cogs"):
 
 # Run Bot
 if __name__ == "__main__":
-    bot.run("OTg1NjM0MzQ4ODUyMjAzNTMw.GtQCYb.R64zPzOPzijaNYmVPtByIUvI98D5Ev6xJQe_7U")
+    bot.run(os.getenv("TOKEN"))

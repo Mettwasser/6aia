@@ -70,14 +70,16 @@ class EvalModal(nextcord.ui.Modal):
                 ret = await func()
         except Exception as e:
             value = stdout.getvalue()
-            err = await interaction.send(f"```py\n{value}{traceback.format_exc()}\n```")
+            await interaction.send(
+                f"Evaluated code:\n```py\n{body}\n```\nError:\n```py\n{value}{traceback.format_exc()}\n```"
+            )
         else:
             value = stdout.getvalue()
             if ret is None:
                 if value:
                     try:
 
-                        out = await interaction.send(
+                        await interaction.send(
                             f"Evaluated code:\n```py\n{body}\n```\nResult:\n```py\n{value}\n```"
                         )
                     except:
@@ -92,15 +94,13 @@ class EvalModal(nextcord.ui.Modal):
                                 else ""
                             )
                             if page == paginated_text[-1]:
-                                out = await interaction.send(
-                                    f"{info}```py\n{page}\n```"
-                                )
+                                await interaction.send(f"{info}```py\n{page}\n```")
                                 break
                             await interaction.send(f"{info}```py\n{page}\n```")
                             first = False
             else:
                 try:
-                    out = await interaction.send(
+                    await interaction.send(
                         f"Evaluated code:\n```py\n{body}\n```\nResult:\n```py\n{value}{ret}\n```"
                     )
                 except:
@@ -113,17 +113,10 @@ class EvalModal(nextcord.ui.Modal):
                             else ""
                         )
                         if page == paginated_text[-1]:
-                            out = await interaction.send(f"{info}```py\n{page}\n```")
+                            await interaction.send(f"{info}```py\n{page}\n```")
                             break
                         await interaction.send(f"{info}```py\n{page}\n```")
                         first = False
-
-        if out:
-            await interaction.send("\u2705")  # tick
-        elif err:
-            await interaction.send("\u2049")  # x
-        else:
-            await interaction.send("\u2705")
 
 
 class Admin(commands.Cog):
@@ -240,7 +233,9 @@ class Admin(commands.Cog):
         await create_wl_table()
         await interaction.send("All databases initialized!")
 
-    @admin.subcommand(description="Evaluates a code.", name="eval", inherit_hooks=True)
+    @admin.subcommand(
+        description="Evaluates a code. (Owner only)", name="eval", inherit_hooks=True
+    )
     async def _eval(self, interaction: nextcord.Interaction):
         modal = EvalModal("Eval Code")
         modal.bot = self.bot
