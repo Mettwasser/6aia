@@ -1,31 +1,7 @@
-from datetime import timedelta
-import nextcord, re
+import nextcord
 from nextcord.ext import commands, application_checks
 from main import bot_basic_color
-from other.utils import to_timestamp
 from other.HelpCmd import HelpCmd
-
-# Check so e.g. Mods can't ban Admins
-def member_is_higher(member1: nextcord.Member, member2: nextcord.Member):
-    return member1.roles[-1] > member2.roles[-1]
-
-
-# Time convertion (1h -> 3600s)
-time_regex = re.compile(r"(\d{1,5}(?:[.,]?\d{1,5})?)([smhd])")
-time_dict = {"h": 3600, "s": 1, "m": 60, "d": 86400}
-
-
-def convert(argument):
-    matches = time_regex.findall(argument.lower())
-    time = 0
-    for v, k in matches:
-        try:
-            time += time_dict[k] * float(v)
-        except KeyError:
-            raise KeyError("{} is an invalid time-key! h/m/s/d are valid!".format(k))
-        except ValueError:
-            raise ValueError("{} is not a number!".format(v))
-    return time
 
 
 class General(commands.Cog):
@@ -41,7 +17,7 @@ class General(commands.Cog):
         view = HelpCmd(interaction)
         embed = nextcord.Embed(
             title="Help Menu",
-            description="Choose a category at the bottom you want help for!",
+            description="Choose a category at the bottom you want help for!\nData Provided by the [Warframe Community Developers](https://docs.warframestat.us) and [warframe.market](https://warframe.market)",
             color=bot_basic_color,
         )
         view.msg = await interaction.send(embed=embed, view=view)
