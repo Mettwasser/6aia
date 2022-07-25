@@ -1,25 +1,8 @@
 import nextcord, requests, aiohttp, difflib
 from nextcord.ext import commands
 from main import bot_basic_color
-from other.wf.errors import ModRankError
-from other.wf.average import get_avg
-from other.wf.void_fissures import vf
-from other.wf.search import WFBrowser, single_search_form_embed
-from other.wf.utils import check_mod_rank, is_mod
-from other.wf.wfm_watchlist import (
-    to_item_name,
-    wl_add,
-    get_wl_items,
-    build_embed,
-    wl_is_mod,
-    clear_wl_items,
-    export_as_file,
-    WLRemoveView,
-)
-from other.wf.worldstates import cycles
-from other.wf.sortie import sortie_embed
-from other.wf.invasions import invasion_embed
-from other.wf.arbi import build_arbi_embed
+from other.wf import *
+from other.utils import align
 
 # Item list for "autocompletion"
 HOST = "https://api.warframe.market/v1"
@@ -644,6 +627,62 @@ class Warframe(commands.Cog):
     ):
         embed = await build_arbi_embed(platform)
         await interaction.send(embed=embed)
+
+    @wf.subcommand(
+        name="calculations",
+        description="Subcommand Base for Calculations related to Warframe.",
+    )
+    async def calculations(self, interaction: nextcord.Interaction):
+        pass
+
+    @calculations.subcommand(
+        name="ehp",
+        description="Calculate the EHP of Health/Armor/DR/Damage Type Modifiers.",
+    )
+    async def ehp(
+        self,
+        interaction: nextcord.Interaction,
+        health: int = nextcord.SlashOption(
+            name="health", description="The Health that would display on your Warframe."
+        ),
+        armor: int = nextcord.SlashOption(
+            name="armor",
+            description="The armor you want to apply on this calculation.",
+            default=0,
+            required=False,
+        ),
+        drp: str = nextcord.SlashOption(
+            name="damage-reduction",
+            description="The damage reduction you currently have in %. (e.g. `90%`)",
+            default="0%",
+            required=False,
+        ),
+        dmp: str = nextcord.SlashOption(
+            name="damage-modifier",
+            description="The damage modifier you currently have in %. (e.g. `75%`)",
+            default="0%",
+            required=False,
+        ),
+    ):
+        effective_hp = calc_ehp(
+            health,
+            armor=armor,
+            damage_reduction_percentage=drp,
+            damage_modifier_percentage=dmp,
+        )
+
+        names = ["Health", "Armor", "Damage Reduction", "Damage Modifier"]
+        values = [health, armor, drp, dmp]
+        desc = align(names, values)
+
+        embed = nextcord.Embed(
+            title="Effective Hit Points",
+            description=f"Specs:\n```\n{desc}\n```\nCalculated EHP: **{effective_hp}**",
+            color=bot_basic_color,
+        )
+        await interaction.send(embed=embed)
+
+        embed.description += f"\nCalculated EHP: **{effective_hp}**"
 
 
 def setup(bot):

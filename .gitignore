@@ -2,3 +2,4 @@
 **/__pycache__/
 warns.db
 wfm_wl.db
+cogs/Warns.py

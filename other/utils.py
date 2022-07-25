@@ -36,3 +36,14 @@ def disable_buttons(view: nextcord.ui.View):
     for child in view.children:
         if isinstance(child, nextcord.ui.Button):
             child.disabled = True
+
+
+def align(names: list, values: list, set_column: bool = True, custom_width=None):
+    text = ""
+    width = custom_width or len(max(names, key=len)) + 2
+
+    for name, value in zip(names, values):
+        text += str(name).ljust(width) + \
+            (":".ljust(width // 4) if set_column else "") + str(value) + "\n"
+
+    return text
