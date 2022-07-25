@@ -8,3 +8,6 @@ A Discord Bot that is focused around Warframe
 
 ## Invite Link
 https://dsc.gg/6aia
+
+## Library used
+I am using nextcord, a fork of Danny's discord.py. I haven't switched back yet and I am currently not looking to do so.
