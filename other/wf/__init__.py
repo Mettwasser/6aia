@@ -17,4 +17,4 @@ from other.wf.worldstates import cycles
 from other.wf.sortie import sortie_embed
 from other.wf.invasions import invasion_embed
 from other.wf.arbi import build_arbi_embed
-from other.wf.calculations import calc_ehp
+from other.wf.calculations import calc_ehp, EnemyHP, EnemyArmor, EnemyShields, EnemyDamage, EnemyOverguard, EnemyAffinity, human_format

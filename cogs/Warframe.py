@@ -682,8 +682,142 @@ class Warframe(commands.Cog):
         )
         await interaction.send(embed=embed)
 
-        embed.description += f"\nCalculated EHP: **{effective_hp}**"
+    @calculations.subcommand(
+        name="enemy_hp", description="Calculates the Enemy HP based on their level."
+    )
+    async def _enemy_hp(
+        self,
+        interaction: nextcord.Interaction,
+        base_level: int = nextcord.SlashOption(name="base-lvl", description="The Base level of the enemy."),
+        current_level: int = nextcord.SlashOption(name="current-lvl", description="The Current level of the enemy."),
+        hp: int = nextcord.SlashOption(name="base-hp", description="The Base hp of the enemy.", required=False, default=1),
+    ):
+        enemy = EnemyHP(base_level, current_level, hp)
+        enemy_hp = human_format(enemy.calc())
+        names = ["Base level", "Current Level", "Base HP"]
+        values = [base_level, current_level, hp]
+        desc = align(names, values)
 
+        embed = nextcord.Embed(
+            title="Enemy HP",
+            description=f"Specs:\n```\n{desc}\n```\nCalculated Enemy HP: **{enemy_hp}**",
+            color=bot_basic_color,
+        )
+        await interaction.send(embed=embed)
+
+    @calculations.subcommand(
+        name="enemy_shields", description="Calculates the Enemy Shields based on their level."
+    )
+    async def _enemy_shields(
+        self,
+        interaction: nextcord.Interaction,
+        base_level: int = nextcord.SlashOption(name="base-lvl", description="The Base level of the enemy."),
+        current_level: int = nextcord.SlashOption(name="current-lvl", description="The Current level of the enemy."),
+        shields: int = nextcord.SlashOption(name="base-shields", description="The Base Shields of the enemy.", required=False, default=1),
+    ):
+        enemy = EnemyShields(base_level, current_level, shields)
+        enemy_shields = human_format(enemy.calc())
+        names = ["Base level", "Current Level", "Base Shields"]
+        values = [base_level, current_level, shields]
+        desc = align(names, values)
+
+        embed = nextcord.Embed(
+            title="Enemy Shields",
+            description=f"Specs:\n```\n{desc}\n```\nCalculated Enemy Shields: **{enemy_shields}**",
+            color=bot_basic_color,
+        )
+        await interaction.send(embed=embed)
+
+    @calculations.subcommand(
+        name="enemy_armor", description="Calculates the Enemy Armor based on their level."
+    )
+    async def _enemy_armor(
+        self,
+        interaction: nextcord.Interaction,
+        base_level: int = nextcord.SlashOption(name="base-lvl", description="The Base level of the enemy."),
+        current_level: int = nextcord.SlashOption(name="current-lvl", description="The Current level of the enemy."),
+        armor: int = nextcord.SlashOption(name="base-armor", description="The Base armor of the enemy.", required=False, default=1),
+    ):
+        enemy = EnemyArmor(base_level, current_level, armor)
+        enemy_armor = human_format(enemy.calc())
+        names = ["Base level", "Current Level", "Base Armor"]
+        values = [base_level, current_level, armor]
+        desc = align(names, values)
+
+        embed = nextcord.Embed(
+            title="Enemy Armor",
+            description=f"Specs:\n```\n{desc}\n```\nCalculated Enemy Armor: **{enemy_armor}**",
+            color=bot_basic_color,
+        )
+        await interaction.send(embed=embed)
+
+    @calculations.subcommand(
+        name="enemy_overguard", description="Calculates the Enemy Overguard based on their level."
+    )
+    async def _enemy_overguard(
+        self,
+        interaction: nextcord.Interaction,
+        base_level: int = nextcord.SlashOption(name="base-lvl", description="The Base level of the enemy."),
+        current_level: int = nextcord.SlashOption(name="current-lvl", description="The Current level of the enemy."),
+        overguard: int = nextcord.SlashOption(name="base-overguard", description="The Base Overguard of the enemy.", required=False, default=1),
+    ):
+        enemy = EnemyOverguard(base_level, current_level, overguard)
+        enemy_overguard = human_format(enemy.calc())
+        names = ["Base level", "Current Level", "Base Overguard"]
+        values = [base_level, current_level, overguard]
+        desc = align(names, values)
+
+        embed = nextcord.Embed(
+            title="Enemy Overguard",
+            description=f"Specs:\n```\n{desc}\n```\nCalculated Enemy Overguard: **{enemy_overguard}**",
+            color=bot_basic_color,
+        )
+        await interaction.send(embed=embed)
+
+    @calculations.subcommand(
+        name="enemy_damage", description="Calculates the Enemy Damage based on their level."
+    )
+    async def _enemy_damage(
+        self,
+        interaction: nextcord.Interaction,
+        base_level: int = nextcord.SlashOption(name="base-lvl", description="The Base level of the enemy."),
+        current_level: int = nextcord.SlashOption(name="current-lvl", description="The Current level of the enemy."),
+        damage: int = nextcord.SlashOption(name="base-damage", description="The Base Damage of the enemy.", required=False, default=1),
+    ):
+        enemy = EnemyDamage(base_level, current_level, damage)
+        enemy_damage = human_format(enemy.calc())
+        names = ["Base level", "Current Level", "Base Damage"]
+        values = [base_level, current_level, damage]
+        desc = align(names, values)
+
+        embed = nextcord.Embed(
+            title="Enemy Damage",
+            description=f"Specs:\n```\n{desc}\n```\nCalculated Enemy Damage: **{enemy_damage}**",
+            color=bot_basic_color,
+        )
+        await interaction.send(embed=embed)
+
+    @calculations.subcommand(
+        name="enemy_affinity", description="Calculates the Enemy Affinity based on their level."
+    )
+    async def _enemy_affinity(
+        self,
+        interaction: nextcord.Interaction,
+        current_level: int = nextcord.SlashOption(name="current-lvl", description="The Current level of the enemy."),
+        affinity: int = nextcord.SlashOption(name="base-affinity", description="The Base Affinity of the enemy.", required=False, default=1),
+    ):
+        enemy = EnemyAffinity(current_level, affinity)
+        enemy_affinity = human_format(enemy.calc())
+        names = ["Current Level", "Base Affinity"]
+        values = [current_level, affinity]
+        desc = align(names, values)
+
+        embed = nextcord.Embed(
+            title="Enemy Affinity",
+            description=f"Specs:\n```\n{desc}\n```\nCalculated Enemy Affinity: **{enemy_affinity}**",
+            color=bot_basic_color,
+        )
+        await interaction.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(Warframe(bot))
