@@ -67,6 +67,10 @@ class HelpDropdown(nextcord.ui.Select):
 
 **invasions** [platform else pc] - shows you the current invasions.
 
+**calculations enemy_hp/shields/armor/overguard/damage** <base-lvl> <current-lvl> [base else 1] - Calculate a scaling enemy stat by their base and current level. [base] is e.g. the base `HP` of an enemy.
+
+**calculations enemy_affinity** <current-lvl> [base else 1] - same thing as above, except you do not need the base level for this.
+
 **-- Related to warframe.market --**
 
 **market search** <item_name> [platform else pc] [rank else 0] [filter else ingame] - searches for an item on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods. [filter] filters search results based on the seller's status.
