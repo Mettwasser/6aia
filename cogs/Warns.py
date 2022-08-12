@@ -86,17 +86,6 @@ async def clear_warns(
             )
 
 
-# checks if a member has the qualified permissions to use the warn commands
-def removewarn_check(interaction: nextcord.Interaction, member: nextcord.Member):
-    roles = member.roles
-    role_ids = [r.id for r in roles]
-    return (
-        826194846393303150 in role_ids
-        or interaction.user.guild_permissions.ban_members == True
-        or interaction.user.guild_permissions.administrator == True
-        or 774429158352486422 in role_ids
-    )
-
 
 # The buttons to be added to the warn-remove message
 class WarnRemoveButton(nextcord.ui.Button):
@@ -204,7 +193,7 @@ class Warns(commands.Cog):
 
     @nextcord.slash_command(
         description="The prefix for all warn commands.",
-        default_member_permissions=nextcord.Permissions(ban_members=True),
+        default_member_permissions=nextcord.Permissions(kick_members=True),
         guild_ids=[774313281543995402, 801922494390468648],
     )
     @application_checks.guild_only()
