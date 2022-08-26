@@ -27,9 +27,9 @@ async def on_ready():
 
 
 # Overwrite default error handler
-# @bot.event
-# async def on_application_command_error(interaction: nextcord.Interaction, error):
-#     pass
+@bot.event
+async def on_application_command_error(interaction: nextcord.Interaction, error):
+    pass
 
 
 """
@@ -42,4 +42,4 @@ for filename in os.listdir(R"./cogs"):
 
 # Run Bot
 if __name__ == "__main__":
-    bot.run(os.getenv("TESTTOKEN"))
+    bot.run(os.getenv("TOKEN"))
