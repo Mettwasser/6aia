@@ -50,6 +50,13 @@ class HelpDropdown(nextcord.ui.Select):
 **help** - shows this message.
 
 **ping** - gives you the ping of the bot in milliseconds.
+
+
+**emoji delete** - deletes the Emoji by using it.
+
+**emoji steal by-usage** - adds the used emoji on this Sever.
+
+**emoji steal by-link** - adds the Emoji from the link you provided to this Server. 
             """
 
         elif self.values[0] == "Warframe Commands":

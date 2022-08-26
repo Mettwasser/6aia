@@ -62,7 +62,6 @@ class EvalModal(nextcord.ui.Modal):
             exec(to_compile, env)
         except Exception as e:
             err = await interaction.send(f"```py\n{e.__class__.__name__}: {e}\n```")
-            return await interaction.message.add_reaction("\u2049")
 
         func = env["func"]
         try:
