@@ -21,22 +21,26 @@ class ErrorHandler(commands.Cog):
                 m_perms = error.missing_permissions
                 await interaction.send(
                     f"You do not have the required permissions to use this command.\n"
-                    f"Required Permission{'s' if len(m_perms) > 1 else ''}: {', '.join(m_perms)}"
+                    f"Required Permission{'s' if len(m_perms) > 1 else ''}: {', '.join(m_perms)}",
+                    ephemeral=True
                 )
 
             # fuck dms
             elif isinstance(error, application_checks.ApplicationNoPrivateMessage):
-                await interaction.send("You cannot run this command in a DM CHannel.")
+                await interaction.send("You cannot run this command in a DM CHannel.",
+                    ephemeral=True)
 
             # NotOwner
             elif isinstance(error, application_checks.ApplicationNotOwner):
                 await interaction.send(
-                    "Only the Owner of the Bot is allowed to run this Command."
+                    "Only the Owner of the Bot is allowed to run this Command.",
+                    ephemeral=True
                 )
 
             elif isinstance(error, application_checks.ApplicationBotMissingPermissions):
                 await interaction.send(
-                    "I do not have permissions for that. Check the role hierarchy or my permissions!"
+                    "I do not have permissions for that. Check the role hierarchy or my permissions!",
+                    ephemeral=True
                 )
 
             # Catches everything else
@@ -51,19 +55,22 @@ class ErrorHandler(commands.Cog):
 
             if isinstance(error, application_checks.ApplicationBotMissingPermissions):
                 await interaction.send(
-                    "I do not have permissions for that. Check the role hierarchy or my permissions!"
+                    "I do not have permissions for that. Check the role hierarchy or my permissions!",
+                    ephemeral=True
                 )
 
             elif isinstance(error, application_checks.ApplicationMissingPermissions):
                 m_perms = error.missing_permissions
                 await interaction.send(
                     f"You do not have the required permissions to use this command.\n"
-                    f"Required Permission{'s' if len(m_perms) > 1 else ''}: {', '.join(m_perms)}"
+                    f"Required Permission{'s' if len(m_perms) > 1 else ''}: {', '.join(m_perms)}",
+                    ephemeral=True
                 )
 
             elif isinstance(error, Forbidden):
                 await interaction.send(
-                    "I do not have permissions for that. Check the role hierarchy or my permissions!"
+                    "I do not have permissions for that. Check the role hierarchy or my permissions!",
+                    ephemeral=True
                 )
 
             # Catches everything else
