@@ -73,7 +73,7 @@ class EmojiManager(commands.Cog):
     async def by_name(
     self, 
     interaction: nextcord.Interaction,
-    emoji_str: str = nextcord.SlashOption(name="emoji", description="The link of the emoji."),
+    emoji_str: str = nextcord.SlashOption(name="emoji", description="The emoji."),
     ):
 
         if not emoji_str.startswith("<"):
