@@ -28,12 +28,6 @@ class HelpDropdown(nextcord.ui.Select):
     # self.values[0] will always be the label of the item the user chose
     async def callback(self, interaction: nextcord.Interaction):
 
-        # Check if there's the view has a games attr (which is the GameDropdown)
-        if hasattr(self.view, "games"):
-
-            # if so, remove the view since you changed from the Games option to something else
-            self.view.remove_item(self.view.games)
-
         embed = nextcord.Embed(
             title="",
             description="""
