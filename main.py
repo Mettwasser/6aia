@@ -32,9 +32,7 @@ async def on_application_command_error(interaction: nextcord.Interaction, error)
     pass
 
 
-"""
-Load Cogs
-"""
+# Load Cogs
 for filename in os.listdir(R"./cogs"):
     if filename.endswith(".py"):
         bot.load_extension(f"cogs.{filename[:-3]}")
