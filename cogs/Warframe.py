@@ -299,7 +299,7 @@ class Warframe(commands.Cog):
 
     @watchlist.subcommand(
         name="add",
-        description="Adds an item to your watchlist. Limited to 10 items.",
+        description="Adds an item to your watchlist. Limited to 3 items.",
     )
     async def _wl_add(
         self,
