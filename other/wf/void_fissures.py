@@ -1,5 +1,6 @@
 # Filters
 import aiohttp
+from other.utils import align
 
 
 def general_filter(mission):
@@ -46,6 +47,7 @@ async def vf(platform):
             + f" {i['missionType']} :"
             + f" {i['node']}"
             + f" - {i['eta']}"
+            + f"{' - **Steel Path**' if i['isHard'] else ''}"
         )
 
         should_run.append(x)
@@ -60,6 +62,7 @@ async def vf(platform):
             + f" {i['missionType']} :"
             + f" {i['node']}"
             + f" - {i['eta']}"
+            + f"{' - **Steel Path**' if i['isHard'] else ''}"
         )
 
         shouldnt_run.append(x)

@@ -494,7 +494,7 @@ class Warframe(commands.Cog):
         embed = nextcord.Embed(
             title=f"Active Fissures ({platform})",
             description="**Fissures you SHOULD run:**\n\n{}\n\n\n**Fissures you SHOULDN'T run:**\n\n{}".format(
-                "\n".join(efficient), "\n".join(inefficient)
+                "\n\n".join(efficient), "\n\n".join(inefficient)
             )
             if efficient is not None
             else "**All Fissures**:{}".format("\n".join(inefficient)),
