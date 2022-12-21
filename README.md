@@ -10,4 +10,4 @@ A Discord Bot that is focused around Warframe
 https://dsc.gg/6aia
 
 ## Library used
-I am using nextcord, a fork of Danny's discord.py. I haven't switched back yet and I am currently not looking to do so.
+I am using nextcord, a fork of Danny's discord.py. I haven't switched back yet and I am currently not planing to do so.
