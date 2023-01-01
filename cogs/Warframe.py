@@ -6,14 +6,14 @@ from other.utils import align
 
 # Item list for "autocompletion"
 HOST = "https://api.warframe.market/v1"
-item_dict = requests.get(HOST + "/items").json()["payload"]["items"]
+item_dict: dict = requests.get(HOST + "/items").json()["payload"]["items"]
 item_names = [x["item_name"] for x in item_dict]
 
 
 def set_item_urlname(item_name: str):
 
     name = difflib.get_close_matches(
-        item_name.capitalize(), [x["item_name"] for x in item_dict]
+        item_name.capitalize(), [x["url_name"] for x in item_dict]
     )
     if name:
         name = name[0].lower()
