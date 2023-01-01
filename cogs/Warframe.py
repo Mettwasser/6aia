@@ -16,10 +16,7 @@ def set_item_urlname(item_name: str):
         item_name.capitalize(), [x["url_name"] for x in item_dict]
     )
     if name:
-        name = name[0].lower()
-        if ("chassis" in name or "neuroptics" in name or "systems" in name) and "blueprint" in name:
-            name = name.replace(" blueprint", "")
-        return name.replace(" ", "_")
+        return name[0].lower()
     return None
 
 
