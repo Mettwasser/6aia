@@ -1,5 +1,6 @@
 import aiohttp
 from .utils import HOST, check_mod_rank
+from ..WFMCache import *
 
 
 async def get_avg(
@@ -7,20 +8,12 @@ async def get_avg(
     item_url_name: str,
     normal_item_name: str,
     mod_rank: int,
-    session: aiohttp.ClientSession = None,
+    wfm_cache: WFMCache,
 ):
     try:
-        session_created = False
-        if session is None:
-            session = aiohttp.ClientSession()
-            session_created = True
-        headers = {"Platform": platform}
-        async with session.get(
-            HOST + f"/items/{item_url_name}/statistics", headers=headers
-        ) as resp:
-            r = (await resp.json())["payload"]["statistics_closed"]["48hours"]
+        r = (await wfm_cache._request(HOST + f"/items/{item_url_name}/statistics", platform=platform))["payload"]["statistics_closed"]["48hours"]
 
-        await check_mod_rank(session, item_url_name, mod_rank)
+        await check_mod_rank(wfm_cache, item_url_name, mod_rank)
 
         r = list(
             filter(
@@ -52,12 +45,8 @@ async def get_avg(
             moving_avg = "-"
 
         avg_price = round((price_of_all / total), 1)
-        if session_created:
-            await session.close()
         return (avg_price, total, moving_avg)
     except Exception as e:
-        if session_created:
-            await session.close()
         if isinstance(e, KeyError):
             raise KeyError(normal_item_name)  # for wl
         raise e

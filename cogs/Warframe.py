@@ -3,6 +3,7 @@ from nextcord.ext import commands
 from main import bot_basic_color
 from other.wf import *
 from other.utils import align
+from other.WFMCache import *
 
 # Item list for "autocompletion"
 HOST = "https://api.warframe.market/v1"
@@ -35,6 +36,7 @@ async def wfm_autocomplete(cog, interaction: nextcord.Interaction, kwarg: str):
 class Warframe(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.wfm_cache: WFMCache = WFMCache()
 
     @nextcord.slash_command(description="Warframe Command Prefix", name="wf")
     async def wf(self, interaction: nextcord.Interaction):
@@ -83,52 +85,37 @@ class Warframe(commands.Cog):
         ),
     ):
         url_name = set_item_urlname(actual_name)
+        params={"include": "item"}
+        json_content = self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders?include=item", platform=platform, params=params)
+        try:
+            await check_mod_rank(self.wfm_cache, url_name, mod_rank)
+            embed = single_search_form_embed(
+                search_filter,
+                mod_rank,
+                json_content,
+                url_name,
+            )
+            await interaction.send(content=None, embed=embed)
 
-        async with aiohttp.ClientSession() as session:
-            try:
-                async with session.get(
-                    "https://api.warframe.market/v1/items/{}/orders?include=item".format(
-                        url_name.lower()
-                    ),
-                    headers={"Platform": platform},
-                    params={"include": "item"},
-                ) as resp:
-                    if resp.status == 200:
-                        json_content = await resp.json()
-                    else:
-                        await interaction.send(
-                            "Something went wrong. This is probably due to an API Error."
-                        )
-                        return
+        except KeyError:
+            await interaction.send(
+                f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
+            )
 
-                await check_mod_rank(session, url_name, mod_rank)
-                embed = single_search_form_embed(
-                    search_filter,
-                    mod_rank,
-                    json_content,
-                    url_name,
-                )
-                await interaction.send(content=None, embed=embed)
+        except IndexError:
+            await interaction.send(
+                f"{actual_name} has no listings! (filter: {search_filter}{', rank: {}'. format(mod_rank) if await is_mod(url_name, self.wfm_cache) else ''})"
+            )
 
-            except KeyError:
-                await interaction.send(
-                    f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
-                )
+        except AttributeError:
+            await interaction.send(
+                f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
+            )
 
-            except IndexError:
-                await interaction.send(
-                    f"{actual_name} has no listings! (filter: {search_filter}{', rank: {}'. format(mod_rank) if await is_mod(url_name, session) else ''})"
-                )
-
-            except AttributeError:
-                await interaction.send(
-                    f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
-                )
-
-            except ModRankError as e:
-                await interaction.send(
-                    f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
-                )
+        except ModRankError as e:
+            await interaction.send(
+                f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
+            )
 
     # Market Search
     @market.subcommand(description="Searches multiple items on warframe.market.")
@@ -166,75 +153,59 @@ class Warframe(commands.Cog):
             default="ingame",
         ),
     ):
-        url_name = set_item_urlname(actual_name)
+        try:
+            url_name = set_item_urlname(actual_name)
+            params = {"include": "item"}
+            json_content = self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders?include=item", platform=platform, params=params)
+            await check_mod_rank(self.wfm_cache, url_name, mod_rank)
 
-        async with aiohttp.ClientSession() as session:
+            view = WFBrowser(
+                json_content,
+                amount_to_look_up,
+                actual_name,
+                url_name,
+                interaction,
+                search_filter,
+                mod_rank,
+            )
+
             try:
-                async with session.get(
-                    "https://api.warframe.market/v1/items/{}/orders?include=item".format(
-                        url_name.lower()
-                    ),
-                    headers={"Platform": platform},
-                    params={"include": "item"},
-                ) as resp:
-                    if resp.status == 200:
-                        json_content = await resp.json()
-
-                    else:
-                        await interaction.send(
-                            "Something went wrong. This is probably due to an API Error."
-                        )
-                        return
-
-                await check_mod_rank(session, url_name, mod_rank)
-
-                view = WFBrowser(
-                    json_content,
-                    amount_to_look_up,
-                    actual_name,
-                    url_name,
-                    interaction,
-                    search_filter,
-                    mod_rank,
-                )
-
-                try:
-                    initial_embed = (
-                        view.form_embed()
-                        if view.max_orders > 1
-                        else single_search_form_embed(
-                            self.search_filter,
-                            self.mod_rank,
-                            self.json_content,
-                            self.item_name,
-                        )
+                initial_embed = (
+                    view.form_embed()
+                    if view.max_orders > 1
+                    else single_search_form_embed(
+                        self.search_filter,
+                        self.mod_rank,
+                        self.json_content,
+                        self.item_name,
                     )
-                except IndexError as e:
-                    raise e
-                if view.max_orders > 1:
-                    view.msg = await interaction.send(embed=initial_embed, view=view)
-                else:
-                    await interaction.send(embed=initial_embed)
-
-            except KeyError:
-                await interaction.send(
-                    f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
                 )
+            except IndexError as e:
+                raise e
+            if view.max_orders > 1:
+                view.msg = await interaction.send(embed=initial_embed, view=view)
+            else:
+                await interaction.send(embed=initial_embed)
 
-            except IndexError:
-                await interaction.send(
-                    f"{actual_name} has no listings! (filter: {search_filter}{', rank: {}'. format(mod_rank) if await is_mod(url_name, session) else ''})"
-                )
+        except KeyError:
+            await interaction.send(
+                f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
+            )
 
-            except AttributeError:
-                await interaction.send(
-                    f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
-                )
+        except IndexError:
+            await interaction.send(
+                f"{actual_name} has no listings! (filter: {search_filter}{', rank: {}'. format(mod_rank) if await is_mod(url_name, self.wfm_cache) else ''})"
+            )
 
-            except ModRankError as e:
-                await interaction.send(
-                    f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
-                )
+        except AttributeError:
+            await interaction.send(
+                f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
+            )
+
+        except ModRankError as e:
+            await interaction.send(
+                f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
+            )
 
     # Gets the Average price for an Item
     @market.subcommand(
@@ -267,9 +238,9 @@ class Warframe(commands.Cog):
     ):
         url_name = set_item_urlname(actual_name)
         try:
-            item_is_mod = await is_mod(url_name)
+            item_is_mod = await is_mod(url_name, self.wfm_cache)
             avg_price, total_sales, moving_avg = await get_avg(
-                platform, url_name, actual_name, mod_rank
+                platform, url_name, actual_name, mod_rank, self.wfm_cache
             )
             embed = nextcord.Embed(color=bot_basic_color)
             embed.title = f"Average price of {to_item_name(url_name)} {'(R{})'.format(mod_rank) if item_is_mod else ''}"
@@ -333,9 +304,8 @@ class Warframe(commands.Cog):
                 "You can only have 3 items to your watchlist!"
             )
         try:
-            async with aiohttp.ClientSession() as session:
-                await check_mod_rank(session, url_name, mod_rank)
-                item_is_mod = await is_mod(url_name, session)
+            await check_mod_rank(self.wfm_cache, url_name, mod_rank)
+            item_is_mod = await is_mod(url_name, self.wfm_cache)
 
         except KeyError:
             return await interaction.send(
@@ -403,7 +373,7 @@ class Warframe(commands.Cog):
                 timestamp=nextcord.utils.utcnow(),
             )
             return await interaction.send(embed=embed)
-        embed = await build_embed(interaction)
+        embed = await build_embed(interaction, self.wfm_cache)
         await interaction.send(embed=embed)
 
     @watchlist.subcommand(name="clear", description="Clears your watchlist.")

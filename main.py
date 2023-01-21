@@ -40,4 +40,4 @@ for filename in os.listdir(R"./cogs"):
 
 # Run Bot
 if __name__ == "__main__":
-    bot.run(os.getenv("TOKEN"))
+    bot.run(os.getenv("TESTTOKEN"))

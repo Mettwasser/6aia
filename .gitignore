@@ -4,3 +4,7 @@ warns.db
 wfm_wl.db
 cogs/Warns.py
 cogs/LFG.py
+Lib/
+Scripts/
+pyvenv.cfg
+Include/

@@ -6,6 +6,7 @@ from .utils import ModRankError, check_mod_rank, HOST
 from main import bot_basic_color
 from nextcord.ext import application_checks
 from io import StringIO
+from other.WFMCache import *
 
 DB = "wfm_wl.db"
 
@@ -99,35 +100,31 @@ async def get_avg_wl(
     normal_item_name: str,
     mod_rank: int,
     interaction: nextcord.Interaction,
-    session: aiohttp.ClientSession = None,
+    wfm_cache: WFMCache,
 ):
     try:
-        headers = {"Platform": platform}
-        async with session.get(
-            HOST + f"/items/{item_url_name}/statistics", headers=headers
-        ) as resp:
-            r = (await resp.json())["payload"]["statistics_closed"]["48hours"]
+        json = (await wfm_cache._request(HOST + f"/items/{item_url_name}/statistics", platform=platform))["payload"]["statistics_closed"]["48hours"]
 
-        await check_mod_rank(session, item_url_name, mod_rank)
+        await check_mod_rank(wfm_cache, item_url_name, mod_rank)
         item_is_mod = await wl_is_mod(interaction, item_url_name)
 
-        r = list(
+        json = list(
             filter(
                 lambda item: (
                     item["mod_rank"] == mod_rank if "mod_rank" in item else True
                 ),
-                r,
+                json,
             )
         )
 
-        if not r:
+        if not json:
             raise IndexError(
                 f"{normal_item_name} {'(Rank {})'.format(mod_rank) if mod_rank is not None else ''} had no sales in the last 48 hours."
             )
 
         price_of_all = 0
-        total = len(r)
-        for item_sold in r:
+        total = len(json)
+        for item_sold in json:
             price_of_all += item_sold["avg_price"]
 
         avg_price = round((price_of_all / total), 1)
@@ -138,7 +135,7 @@ async def get_avg_wl(
         raise e
 
 
-async def build_embed(interaction: Interaction):
+async def build_embed(interaction: Interaction, wfm_cache: WFMCache):
     items = await get_wl_items(interaction)
     platform = items[0]["platform"]
 
@@ -149,22 +146,21 @@ async def build_embed(interaction: Interaction):
     )
 
     tasks = []
-    async with aiohttp.ClientSession() as session:
-        for item in items:
-            tasks.append(
-                asyncio.create_task(
-                    get_avg_wl(
-                        platform,
-                        item["url_name"],
-                        to_item_name(item["url_name"]),
-                        item["mod_rank"],
-                        interaction,
-                        session=session,
-                    )
+    for item in items:
+        tasks.append(
+            asyncio.create_task(
+                get_avg_wl(
+                    platform,
+                    item["url_name"],
+                    to_item_name(item["url_name"]),
+                    item["mod_rank"],
+                    interaction,
+                    wfm_cache=wfm_cache,
                 )
             )
+        )
 
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+    results = await asyncio.gather(*tasks, return_exceptions=True)
 
     for result in results:
         try:
@@ -190,6 +186,8 @@ async def export_as_file(interaction: Interaction):
     header = (
         f"Average prices of your watchlist - {nextcord.utils.utcnow().date()}\n\n\n"
     )
+
+    embed: nextcord.Embed
     string = embed.description.replace("**", "")
     sio = StringIO(header + string)
     file = nextcord.File(
