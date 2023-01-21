@@ -9,7 +9,7 @@ class WFMCache:
 
         self.do_debug = True
 
-    async def _request(self, path: str, max_cache_age=200, platform="pc", params=None):
+    async def _request(self, path: str, max_cache_age=21600, platform="pc", params=None):
         if path in self.cache[platform] and max_cache_age > (time.time() - self.cache_time[platform][path]):
             if self.do_debug:
                 print(f"Used cached value for {path} at {datetime.datetime.now()}")
