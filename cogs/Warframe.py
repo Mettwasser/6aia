@@ -237,7 +237,7 @@ class Warframe(commands.Cog):
     @market.subcommand(
         description="Gives you the average price of an item on warframe.market."
     )
-    async def avg(
+    async def average(
         self,
         interaction: nextcord.Interaction,
         actual_name: str = nextcord.SlashOption(
@@ -279,7 +279,7 @@ class Warframe(commands.Cog):
             embed = nextcord.Embed(color=bot_basic_color)
             embed.title = f"Average price of {to_item_name(url_name)} {'(R{})'.format(mod_rank) if item_is_mod else ''}"
             embed.description = f"Average price: **{avg_price}**\n**{total_sales}** sales in the last 48 hours\nMoving average: **{moving_avg}**"
-            embed.set_footer(text=f"Last cached")
+            embed.set_footer(text=f"Last cached", icon_url="https://image.winudf.com/v2/image/bWFya2V0LndhcmZyYW1lX2ljb25fMTUzODM1NjAxOV8wMjI/icon.png?w=&fakeurl=1")
             embed.timestamp = datetime.datetime.fromtimestamp(self.wfm_cache.cache_time[platform][HOST + f'/items/{url_name}/statistics'])
             await interaction.send(embed=embed)
 
