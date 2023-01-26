@@ -173,7 +173,7 @@ class WFBrowser(nextcord.ui.View):
             embed.set_author(name="{}".format(user_name), icon_url=user_avatar)
             embed.set_thumbnail(url=icon_url)
 
-            embed.set_footer(text=f"Last cached")
+            embed.set_footer(text=f"Last cached", icon_url="https://image.winudf.com/v2/image/bWFya2V0LndhcmZyYW1lX2ljb25fMTUzODM1NjAxOV8wMjI/icon.png?w=&fakeurl=1")
             embed.timestamp = datetime.fromtimestamp(self.wfm_cache.cache_time[self.platform][HOST + f'/items/{self.url_name}/orders'])
             self.cached_embeds[self.current] = embed
             return embed
@@ -369,6 +369,6 @@ def single_search_form_embed(
     embed.set_author(name="{}".format(user_name), icon_url=user_avatar)
     embed.set_thumbnail(url=icon_url)
 
-    embed.set_footer(text=f"Last cached")
+    embed.set_footer(text=f"Last cached", icon_url="https://image.winudf.com/v2/image/bWFya2V0LndhcmZyYW1lX2ljb25fMTUzODM1NjAxOV8wMjI/icon.png?w=&fakeurl=1")
     embed.timestamp = datetime.fromtimestamp(wfm_cache.cache_time[platform][HOST + f'/items/{url_name}/orders'])
     return embed
