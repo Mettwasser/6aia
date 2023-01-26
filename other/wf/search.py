@@ -1,9 +1,11 @@
 from datetime import datetime
 from typing import Iterable
 import nextcord
+from other.WFMCache import WFMCache
 from other.utils import disable_buttons
 from main import bot_basic_color
 from .wfm_watchlist import to_item_name
+from .utils import HOST
 
 from other.wf.utils import is_mod
 
@@ -43,6 +45,8 @@ class WFBrowser(nextcord.ui.View):
         initial_interaction: nextcord.Interaction,
         search_filter: str,
         mod_rank: int,
+        wfm_cache: WFMCache,
+        platform: str,
         *,
         timeout=45,
     ):
@@ -74,6 +78,8 @@ class WFBrowser(nextcord.ui.View):
         self.page = 1
         self.url_name = url_name
         self.initial_interaction = initial_interaction
+        self.wfm_cache = wfm_cache
+        self.platform = platform
 
     async def interaction_check(self, interaction: nextcord.Interaction) -> bool:
         return self.initial_interaction.user == interaction.user
@@ -166,6 +172,9 @@ class WFBrowser(nextcord.ui.View):
 
             embed.set_author(name="{}".format(user_name), icon_url=user_avatar)
             embed.set_thumbnail(url=icon_url)
+
+            embed.set_footer(text=f"Last cached")
+            embed.timestamp = datetime.fromtimestamp(self.wfm_cache.cache_time[self.platform][HOST + f'/items/{self.url_name}/orders'])
             self.cached_embeds[self.current] = embed
             return embed
 
@@ -173,14 +182,14 @@ class WFBrowser(nextcord.ui.View):
             return self.cached_embeds[self.current]
 
     def check(self):
-        if (self.current) == self.max_orders - 1 or self.current == self.max_orders - 1:
+        if self.current == self.max_orders - 1 or self.current == self.max_orders - 1:
             d = True
         else:
             d = False
         for child in self.children[3:5]:
             child.disabled = d
 
-        if (self.current) == 0:
+        if self.current == 0:
             d = True
         else:
             d = False
@@ -270,7 +279,7 @@ class WFBrowser(nextcord.ui.View):
 
 # SINGLE SEARCH
 def single_search_form_embed(
-    search_filter: str, mod_rank: int, json_content: dict, item_name: str
+    search_filter: str, mod_rank: int, json_content: dict, url_name: str, wfm_cache: WFMCache, platform: str
 ):
     filtered_wfm = list(
         filter(
@@ -310,7 +319,7 @@ def single_search_form_embed(
 
     embed = nextcord.Embed(color=bot_basic_color)
     embed.title = "Cheapest offer for {} on warframe.market".format(
-        to_item_name(item_name)
+        to_item_name(url_name)
     )
     embed.add_field(name="Order Type", value="{}".format(order_type))
     embed.add_field(name="Price", value="{}p".format(plat_cost))
@@ -324,7 +333,7 @@ def single_search_form_embed(
             name="Buy",
             value="`/w {} Hi! I want to buy: {} (rank {}) for {} platinum. (warframe.market)`".format(
                 user_name,
-                item_name,
+                url_name,
                 first_wfm_order["mod_rank"],
                 plat_cost,
             ),
@@ -334,7 +343,7 @@ def single_search_form_embed(
         embed.add_field(
             name="Buy",
             value="`/w {} Hi! I want to buy: {} for {} platinum. (warframe.market)`".format(
-                user_name, item_name, plat_cost
+                user_name, url_name, plat_cost
             ),
             inline=True,
         )
@@ -359,5 +368,7 @@ def single_search_form_embed(
 
     embed.set_author(name="{}".format(user_name), icon_url=user_avatar)
     embed.set_thumbnail(url=icon_url)
-    embed.timestamp = nextcord.utils.utcnow()
+
+    embed.set_footer(text=f"Last cached")
+    embed.timestamp = datetime.fromtimestamp(wfm_cache.cache_time[platform][HOST + f'/items/{url_name}/orders'])
     return embed

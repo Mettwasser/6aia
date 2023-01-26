@@ -7,7 +7,7 @@ class WFMCache:
         self.cache = {"pc": {}, "xbox": {}, "switch": {}, "ps4": {}}
         self.cache_time = {"pc": {}, "xbox": {}, "switch": {}, "ps4": {}}
 
-        self.do_debug = True
+        self.do_debug = False
 
     async def _request(self, path: str, max_cache_age=28800, platform="pc", params=None):
         if path in self.cache[platform] and max_cache_age > (time.time() - self.cache_time[platform][path]):

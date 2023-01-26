@@ -3,7 +3,7 @@ import nextcord, requests, aiohttp, difflib
 from nextcord.ext import commands
 from main import bot_basic_color
 from other.wf import *
-from other.utils import align
+from other.utils import align, to_timestamp
 from other.WFMCache import *
 from other.DeferTimer import DeferTimer
 
@@ -91,7 +91,7 @@ class Warframe(commands.Cog):
         timer = DeferTimer(interaction)
         asyncio.create_task(timer.start())
         params={"include": "item"}
-        json_content = self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders?include=item", platform=platform, params=params)
+        json_content = await self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders", platform=platform, params=params)
         timer.cancel = True
 
         try:
@@ -101,6 +101,8 @@ class Warframe(commands.Cog):
                 mod_rank,
                 json_content,
                 url_name,
+                self.wfm_cache,
+                platform
             )
             await interaction.send(content=None, embed=embed)
 
@@ -172,7 +174,7 @@ class Warframe(commands.Cog):
             asyncio.create_task(timer.start())
 
             params = {"include": "item"}
-            json_content = self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders?include=item", platform=platform, params=params)
+            json_content = await self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders", platform=platform, params=params)
 
             timer.cancel = True
 
@@ -186,6 +188,8 @@ class Warframe(commands.Cog):
                 interaction,
                 search_filter,
                 mod_rank,
+                self.wfm_cache,
+                platform
             )
 
             try:
@@ -206,7 +210,7 @@ class Warframe(commands.Cog):
             else:
                 await interaction.send(embed=initial_embed)
 
-        except KeyError:
+        except KeyError as e:
             await interaction.send(
                 f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
             )
@@ -275,6 +279,8 @@ class Warframe(commands.Cog):
             embed = nextcord.Embed(color=bot_basic_color)
             embed.title = f"Average price of {to_item_name(url_name)} {'(R{})'.format(mod_rank) if item_is_mod else ''}"
             embed.description = f"Average price: **{avg_price}**\n**{total_sales}** sales in the last 48 hours\nMoving average: **{moving_avg}**"
+            embed.set_footer(text=f"Last cached")
+            embed.timestamp = datetime.datetime.fromtimestamp(self.wfm_cache.cache_time[platform][HOST + f'/items/{url_name}/statistics'])
             await interaction.send(embed=embed)
 
         except KeyError:
