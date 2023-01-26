@@ -1,9 +1,11 @@
+import asyncio
 import nextcord, requests, aiohttp, difflib
 from nextcord.ext import commands
 from main import bot_basic_color
 from other.wf import *
 from other.utils import align
 from other.WFMCache import *
+from other.DeferTimer import DeferTimer
 
 # Item list for "autocompletion"
 HOST = "https://api.warframe.market/v1"
@@ -85,8 +87,13 @@ class Warframe(commands.Cog):
         ),
     ):
         url_name = set_item_urlname(actual_name)
+
+        timer = DeferTimer(interaction)
+        asyncio.create_task(timer.start())
         params={"include": "item"}
         json_content = self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders?include=item", platform=platform, params=params)
+        timer.cancel = True
+
         try:
             await check_mod_rank(self.wfm_cache, url_name, mod_rank)
             embed = single_search_form_embed(
@@ -116,6 +123,11 @@ class Warframe(commands.Cog):
             await interaction.send(
                 f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
             )
+
+        finally:
+            timer.cancel = True
+
+        
 
     # Market Search
     @market.subcommand(description="Searches multiple items on warframe.market.")
@@ -155,8 +167,15 @@ class Warframe(commands.Cog):
     ):
         try:
             url_name = set_item_urlname(actual_name)
+
+            timer = DeferTimer(interaction)
+            asyncio.create_task(timer.start())
+
             params = {"include": "item"}
             json_content = self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders?include=item", platform=platform, params=params)
+
+            timer.cancel = True
+
             await check_mod_rank(self.wfm_cache, url_name, mod_rank)
 
             view = WFBrowser(
@@ -207,6 +226,9 @@ class Warframe(commands.Cog):
                 f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
             )
 
+        finally:
+            timer.cancel = True
+
     # Gets the Average price for an Item
     @market.subcommand(
         description="Gives you the average price of an item on warframe.market."
@@ -238,10 +260,18 @@ class Warframe(commands.Cog):
     ):
         url_name = set_item_urlname(actual_name)
         try:
+            
+            timer = DeferTimer(interaction)
+            asyncio.create_task(timer.start())
+
             item_is_mod = await is_mod(url_name, self.wfm_cache)
+
             avg_price, total_sales, moving_avg = await get_avg(
                 platform, url_name, actual_name, mod_rank, self.wfm_cache
             )
+
+            timer.cancel = True
+
             embed = nextcord.Embed(color=bot_basic_color)
             embed.title = f"Average price of {to_item_name(url_name)} {'(R{})'.format(mod_rank) if item_is_mod else ''}"
             embed.description = f"Average price: **{avg_price}**\n**{total_sales}** sales in the last 48 hours\nMoving average: **{moving_avg}**"
@@ -259,6 +289,9 @@ class Warframe(commands.Cog):
             await interaction.send(
                 f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
             )
+
+        finally:
+            timer.cancel
 
     # WATCHLIST STUFF
 
