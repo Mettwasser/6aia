@@ -1,0 +1,4 @@
+nextcord
+git+https://github.com/Rapptz/asqlite.git
+aiohttp
+python-dotenv
