@@ -79,7 +79,7 @@ class HelpDropdown(nextcord.ui.Select):
 
 **market searchmany** <item_name> <amount to look up> [platform else pc] [rank else 0] [filter else ingame] - searches for multiple items on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods. [filter] filters search results based on the seller's status.
 
-**market avg** <item_name> [platform else pc] [rank else 0] - gets the average price for an item on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods.
+**market average** <item_name> [platform else pc] [rank else 0] - gets the average price for an item on [warframe.market](https://warframe.market). All tradable items should have an autocompletion. [rank] does only work on items like Arcanes and Mods.
 
 **watchlist add** <item_name> [platform else pc] [rank else 0] - adds an item to your watchlist. [rank] does only work on items like Arcanes and Mods.
 
