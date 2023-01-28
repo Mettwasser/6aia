@@ -1,4 +1,5 @@
 import asyncio
+import sqlite3
 import nextcord, requests, aiohttp, difflib
 from nextcord.ext import commands
 from main import bot_basic_color
@@ -346,6 +347,24 @@ class Warframe(commands.Cog):
             await check_mod_rank(self.wfm_cache, url_name, mod_rank)
             item_is_mod = await is_mod(url_name, self.wfm_cache)
 
+
+            if items:
+                platform = items[0]["platform"]
+
+            await wl_add(
+                interaction,
+                url_name,
+                platform,
+                mod_rank,
+                "TRUE" if item_is_mod else "FALSE",
+            )
+            embed = nextcord.Embed(
+                title="Item Added!",
+                description=f"{actual_name}{' (Rank {})'.format(mod_rank) if item_is_mod else ''} added to your watchlist!",
+                color=bot_basic_color,
+                timestamp=nextcord.utils.utcnow(),
+            )
+            await interaction.send(embed=embed)
         except KeyError:
             return await interaction.send(
                 f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
@@ -355,23 +374,10 @@ class Warframe(commands.Cog):
                 f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
             )
 
-        if items:
-            platform = items[0]["platform"]
-
-        await wl_add(
-            interaction,
-            url_name,
-            platform,
-            mod_rank,
-            "TRUE" if item_is_mod else "FALSE",
-        )
-        embed = nextcord.Embed(
-            title="Item Added!",
-            description=f"{actual_name}{' (Rank {})'.format(mod_rank) if item_is_mod else ''} added to your watchlist!",
-            color=bot_basic_color,
-            timestamp=nextcord.utils.utcnow(),
-        )
-        await interaction.send(embed=embed)
+        except sqlite3.IntegrityError:
+            return await interaction.send(
+                f"Failed to add the item: `{actual_name}{' ({})'.format(mod_rank) if item_is_mod else ''}` because it is already added."
+            )
 
     @watchlist.subcommand(
         name="remove", description="Removes items from your watchlist."
@@ -404,6 +410,8 @@ class Warframe(commands.Cog):
         description="Shows the average prices of all your watchlist items.",
     )
     async def wl_calc(self, interaction: nextcord.Interaction):
+        timer = DeferTimer(interaction)
+        asyncio.create_task(timer.start())
         items = await get_wl_items(interaction)
         if not items:
             embed = nextcord.Embed(
@@ -413,7 +421,9 @@ class Warframe(commands.Cog):
             )
             return await interaction.send(embed=embed)
         embed = await build_embed(interaction, self.wfm_cache)
+        timer.cancel = True
         await interaction.send(embed=embed)
+
 
     @watchlist.subcommand(name="clear", description="Clears your watchlist.")
     async def _wl_clear(self, interaction: nextcord.Interaction):

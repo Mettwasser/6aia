@@ -26,7 +26,7 @@ async def create_wl_table():
                 platform TEXT,
                 mod_rank INT,
                 is_mod TEXT,
-                PRIMARY KEY (user, url_name)
+                PRIMARY KEY (user, url_name, mod_rank)
             )
             """
             )
@@ -54,7 +54,7 @@ async def wl_add(
         async with con.cursor() as cur:
             await cur.execute(
                 """
-            INSERT OR IGNORE INTO wl VALUES (?,?,?,?,?)
+            INSERT INTO wl VALUES (?,?,?,?,?)
             """,
                 (interaction.user.id, url_name, platform, mod_rank, is_mod),
             )
@@ -75,7 +75,7 @@ async def get_wl_items(interaction: Interaction):
     async with asqlite.connect(DB) as con:
         async with con.cursor() as cur:
             await cur.execute(
-                """
+            """
             SELECT rowid, * FROM wl WHERE user = ?
             """,
                 (interaction.user.id),
