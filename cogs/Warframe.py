@@ -7,6 +7,7 @@ from other.wf import *
 from other.utils import align, to_timestamp
 from other.WFMCache import *
 from other.DeferTimer import DeferTimer
+from other.wf.utils import platforms_visualized
 
 # Item list for "autocompletion"
 HOST = "https://api.warframe.market/v1"
@@ -395,7 +396,7 @@ class Warframe(commands.Cog):
 
         view = WLRemoveView(interaction, items)
         embed = nextcord.Embed(
-            title=f"Your Watchlist ({items[0]['platform']}):",
+            title=f"Your Watchlist ({platforms_visualized[items[0]['platform']]}):",
             description="",
             color=bot_basic_color,
             timestamp=nextcord.utils.utcnow(),
@@ -410,7 +411,7 @@ class Warframe(commands.Cog):
         description="Shows the average prices of all your watchlist items.",
     )
     async def wl_calc(self, interaction: nextcord.Interaction):
-        timer = DeferTimer(interaction)
+        timer = DeferTimer(interaction, 2.0)
         asyncio.create_task(timer.start())
         items = await get_wl_items(interaction)
         if not items:
@@ -457,7 +458,7 @@ class Warframe(commands.Cog):
             return await interaction.send(embed=embed)
 
         embed = nextcord.Embed(
-            title="Your Watchlist:",
+            title=f"Your Watchlist ({platforms_visualized[items[0]['platform']]})",
             description="",
             color=bot_basic_color,
             timestamp=nextcord.utils.utcnow(),
@@ -483,7 +484,12 @@ class Warframe(commands.Cog):
         file = await export_as_file(interaction)
         await interaction.send(file=file)
 
-    # fissures
+
+
+    # FISSURES
+
+
+
     @wf.subcommand(
         name="fissures",
         description="Shows you all active fissures and sorts them by efficiency.",

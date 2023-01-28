@@ -1,8 +1,8 @@
 import asyncio
-import asqlite, aiohttp, nextcord
+import asqlite, nextcord, datetime
 from discord import Interaction
-from ..utils import disable_buttons
-from .utils import ModRankError, check_mod_rank, HOST
+from ..utils import disable_buttons, to_timestamp
+from .utils import ModRankError, check_mod_rank, HOST, platforms_visualized
 from main import bot_basic_color
 from nextcord.ext import application_checks
 from io import StringIO
@@ -140,7 +140,7 @@ async def build_embed(interaction: Interaction, wfm_cache: WFMCache):
     platform = items[0]["platform"]
 
     embed = nextcord.Embed(
-        title=f"Average prices of your watchlist ({platform})",
+        title=f"Average prices of your watchlist ({platforms_visualized[platform]})",
         description="",
         color=bot_basic_color,
     )
@@ -167,7 +167,8 @@ async def build_embed(interaction: Interaction, wfm_cache: WFMCache):
             if isinstance(result, Exception):
                 raise result
             else:
-                embed.description += f"**{to_item_name(result[2])}{' (Rank {})'.format(result[4]) if result[3] else ''}**\nAverage price: **{result[0]}**\n**{result[1]}** sales in the last 48 hours\n\n"
+                embed.description += f"**{to_item_name(result[2])}{' (Rank {})'.format(result[4]) if result[3] else ''}**\nAverage price: **{result[0]}**\n**{result[1]}**" + \
+                f" sales in the last 48 hours\n{to_timestamp(datetime.datetime.fromtimestamp(wfm_cache.cache_time[platform][HOST + f'/items/{result[2]}/statistics']), 'R')}\n\n"
 
         except KeyError as e:
             embed.description += f"Unable to find the item `({e.args[0]})`\n\n"
