@@ -182,8 +182,8 @@ async def build_embed(interaction: Interaction, wfm_cache: WFMCache):
     return embed
 
 
-async def export_as_file(interaction: Interaction):
-    embed = await build_embed(interaction)
+async def export_as_file(interaction: Interaction, wfm_cache: WFMCache):
+    embed = await build_embed(interaction, wfm_cache)
     header = (
         f"Average prices of your watchlist - {nextcord.utils.utcnow().date()}\n\n\n"
     )
