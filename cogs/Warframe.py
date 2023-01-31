@@ -269,7 +269,6 @@ class Warframe(commands.Cog):
             
             timer = DeferTimer(interaction)
             asyncio.create_task(timer.start())
-
             item_is_mod = await is_mod(url_name, self.wfm_cache)
 
             avg_price, total_sales, moving_avg = await get_avg(
@@ -481,7 +480,7 @@ class Warframe(commands.Cog):
             )
             return await interaction.send(embed=embed)
 
-        file = await export_as_file(interaction)
+        file = await export_as_file(interaction, self.wfm_cache)
         await interaction.send(file=file)
 
 
@@ -555,7 +554,7 @@ class Warframe(commands.Cog):
 
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"https://api.warframestat.us/{platform}/voidTrader/",
+                f"https://api.warframestat.us/{platform}/voidTrader/?language=en",
                 headers={"language": "en"},
             ) as resp:
                 if resp.status != 200:
