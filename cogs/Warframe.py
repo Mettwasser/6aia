@@ -94,7 +94,6 @@ class Warframe(commands.Cog):
         asyncio.create_task(timer.start())
         params={"include": "item"}
         json_content = await self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders", platform=platform, params=params)
-        timer.cancel = True
 
         try:
             await check_mod_rank(self.wfm_cache, url_name, mod_rank)
@@ -127,9 +126,6 @@ class Warframe(commands.Cog):
             await interaction.send(
                 f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
             )
-
-        finally:
-            timer.cancel = True
 
         
 
@@ -177,8 +173,6 @@ class Warframe(commands.Cog):
 
             params = {"include": "item"}
             json_content = await self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders", platform=platform, params=params)
-
-            timer.cancel = True
 
             await check_mod_rank(self.wfm_cache, url_name, mod_rank)
 
@@ -232,9 +226,6 @@ class Warframe(commands.Cog):
                 f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
             )
 
-        finally:
-            timer.cancel = True
-
     # Gets the Average price for an Item
     @market.subcommand(
         description="Gives you the average price of an item on warframe.market."
@@ -275,8 +266,6 @@ class Warframe(commands.Cog):
                 platform, url_name, actual_name, mod_rank, self.wfm_cache
             )
 
-            timer.cancel = True
-
             embed = nextcord.Embed(color=bot_basic_color)
             embed.title = f"Average price of {to_item_name(url_name)} {'(R{})'.format(mod_rank) if item_is_mod else ''}"
             embed.description = f"Average price: **{avg_price}**\n**{total_sales}** sales in the last 48 hours\nMoving average: **{moving_avg}**"
@@ -296,9 +285,6 @@ class Warframe(commands.Cog):
             await interaction.send(
                 f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
             )
-
-        finally:
-            timer.cancel
 
     # WATCHLIST STUFF
 
@@ -421,7 +407,6 @@ class Warframe(commands.Cog):
             )
             return await interaction.send(embed=embed)
         embed = await build_embed(interaction, self.wfm_cache)
-        timer.cancel = True
         await interaction.send(embed=embed)
 
 
