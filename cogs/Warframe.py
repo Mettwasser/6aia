@@ -90,8 +90,7 @@ class Warframe(commands.Cog):
     ):
         url_name = set_item_urlname(actual_name)
 
-        timer = DeferTimer(interaction)
-        asyncio.create_task(timer.start())
+        asyncio.create_task(DeferTimer.start(interaction))
         params={"include": "item"}
         json_content = await self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders", platform=platform, params=params)
 
@@ -168,8 +167,7 @@ class Warframe(commands.Cog):
         try:
             url_name = set_item_urlname(actual_name)
 
-            timer = DeferTimer(interaction)
-            asyncio.create_task(timer.start())
+            asyncio.create_task(DeferTimer.start(interaction))
 
             params = {"include": "item"}
             json_content = await self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders", platform=platform, params=params)
@@ -257,9 +255,7 @@ class Warframe(commands.Cog):
     ):
         url_name = set_item_urlname(actual_name)
         try:
-            
-            timer = DeferTimer(interaction)
-            asyncio.create_task(timer.start())
+            asyncio.create_task(DeferTimer.start(interaction))
             item_is_mod = await is_mod(url_name, self.wfm_cache)
 
             avg_price, total_sales, moving_avg = await get_avg(
@@ -396,8 +392,7 @@ class Warframe(commands.Cog):
         description="Shows the average prices of all your watchlist items.",
     )
     async def wl_calc(self, interaction: nextcord.Interaction):
-        timer = DeferTimer(interaction, 2.0)
-        asyncio.create_task(timer.start())
+        asyncio.create_task(DeferTimer.start(interaction, timeout = 2.0))
         items = await get_wl_items(interaction)
         if not items:
             embed = nextcord.Embed(
