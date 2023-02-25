@@ -5,7 +5,7 @@ class DeferTimer:
 
     @staticmethod
     async def start(interaction: nextcord.Interaction, timeout: float = 2.5, do_debug: bool = False):
-        await asyncio.sleep()
+        await asyncio.sleep(timeout)
 
         if interaction.response.is_done():
             return
