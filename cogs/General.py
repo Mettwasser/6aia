@@ -17,7 +17,7 @@ class General(commands.Cog):
         view = HelpCmd(interaction)
         embed = nextcord.Embed(
             title="Help Menu",
-            description="Choose a category at the bottom you want help for!\nData Provided by the [Warframe Community Developers](https://docs.warframestat.us) and [warframe.market](https://warframe.market)",
+            description="Choose a category at the bottom you want help for!\nData Provided by the [Warframe Community Developers](https://docs.warframestat.us) and [warframe.market](https://warframe.market)\n\nJoin the support server **[here](https://discord.gg/paAyF8A)**!",
             color=bot_basic_color,
         )
         view.msg = await interaction.send(embed=embed, view=view)
