@@ -31,7 +31,7 @@ def is_efficient(mission: dict, revert=False) -> bool:
 
 
 async def vf(platform):
-    link = f"https://api.warframestat.us/{platform}/fissures/"
+    link = f"https://api.warframestat.us/{platform}/fissures/?language=en"
     async with aiohttp.ClientSession() as session:
         async with session.get(link, headers={"language": "en"}) as r:
 

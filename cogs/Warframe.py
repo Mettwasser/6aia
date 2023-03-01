@@ -1,4 +1,5 @@
 import asyncio
+import sqlite3
 import nextcord, requests, aiohttp, difflib
 from nextcord.ext import commands
 from main import bot_basic_color
@@ -6,6 +7,7 @@ from other.wf import *
 from other.utils import align, to_timestamp
 from other.WFMCache import *
 from other.DeferTimer import DeferTimer
+from other.wf.utils import platforms_visualized
 
 # Item list for "autocompletion"
 HOST = "https://api.warframe.market/v1"
@@ -88,11 +90,9 @@ class Warframe(commands.Cog):
     ):
         url_name = set_item_urlname(actual_name)
 
-        timer = DeferTimer(interaction)
-        asyncio.create_task(timer.start())
+        asyncio.create_task(DeferTimer.start(interaction))
         params={"include": "item"}
         json_content = await self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders", platform=platform, params=params)
-        timer.cancel = True
 
         try:
             await check_mod_rank(self.wfm_cache, url_name, mod_rank)
@@ -125,9 +125,6 @@ class Warframe(commands.Cog):
             await interaction.send(
                 f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
             )
-
-        finally:
-            timer.cancel = True
 
         
 
@@ -170,13 +167,10 @@ class Warframe(commands.Cog):
         try:
             url_name = set_item_urlname(actual_name)
 
-            timer = DeferTimer(interaction)
-            asyncio.create_task(timer.start())
+            asyncio.create_task(DeferTimer.start(interaction))
 
             params = {"include": "item"}
             json_content = await self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders", platform=platform, params=params)
-
-            timer.cancel = True
 
             await check_mod_rank(self.wfm_cache, url_name, mod_rank)
 
@@ -230,9 +224,6 @@ class Warframe(commands.Cog):
                 f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
             )
 
-        finally:
-            timer.cancel = True
-
     # Gets the Average price for an Item
     @market.subcommand(
         description="Gives you the average price of an item on warframe.market."
@@ -264,17 +255,12 @@ class Warframe(commands.Cog):
     ):
         url_name = set_item_urlname(actual_name)
         try:
-            
-            timer = DeferTimer(interaction)
-            asyncio.create_task(timer.start())
-
+            asyncio.create_task(DeferTimer.start(interaction))
             item_is_mod = await is_mod(url_name, self.wfm_cache)
 
             avg_price, total_sales, moving_avg = await get_avg(
                 platform, url_name, actual_name, mod_rank, self.wfm_cache
             )
-
-            timer.cancel = True
 
             embed = nextcord.Embed(color=bot_basic_color)
             embed.title = f"Average price of {to_item_name(url_name)} {'(R{})'.format(mod_rank) if item_is_mod else ''}"
@@ -295,9 +281,6 @@ class Warframe(commands.Cog):
             await interaction.send(
                 f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
             )
-
-        finally:
-            timer.cancel
 
     # WATCHLIST STUFF
 
@@ -346,6 +329,24 @@ class Warframe(commands.Cog):
             await check_mod_rank(self.wfm_cache, url_name, mod_rank)
             item_is_mod = await is_mod(url_name, self.wfm_cache)
 
+
+            if items:
+                platform = items[0]["platform"]
+
+            await wl_add(
+                interaction,
+                url_name,
+                platform,
+                mod_rank,
+                "TRUE" if item_is_mod else "FALSE",
+            )
+            embed = nextcord.Embed(
+                title="Item Added!",
+                description=f"{actual_name}{' (Rank {})'.format(mod_rank) if item_is_mod else ''} added to your watchlist!",
+                color=bot_basic_color,
+                timestamp=nextcord.utils.utcnow(),
+            )
+            await interaction.send(embed=embed)
         except KeyError:
             return await interaction.send(
                 f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
@@ -355,23 +356,10 @@ class Warframe(commands.Cog):
                 f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
             )
 
-        if items:
-            platform = items[0]["platform"]
-
-        await wl_add(
-            interaction,
-            url_name,
-            platform,
-            mod_rank,
-            "TRUE" if item_is_mod else "FALSE",
-        )
-        embed = nextcord.Embed(
-            title="Item Added!",
-            description=f"{actual_name}{' (Rank {})'.format(mod_rank) if item_is_mod else ''} added to your watchlist!",
-            color=bot_basic_color,
-            timestamp=nextcord.utils.utcnow(),
-        )
-        await interaction.send(embed=embed)
+        except sqlite3.IntegrityError:
+            return await interaction.send(
+                f"Failed to add the item: `{actual_name}{' ({})'.format(mod_rank) if item_is_mod else ''}` because it is already added."
+            )
 
     @watchlist.subcommand(
         name="remove", description="Removes items from your watchlist."
@@ -389,7 +377,7 @@ class Warframe(commands.Cog):
 
         view = WLRemoveView(interaction, items)
         embed = nextcord.Embed(
-            title=f"Your Watchlist ({items[0]['platform']}):",
+            title=f"Your Watchlist ({platforms_visualized[items[0]['platform']]}):",
             description="",
             color=bot_basic_color,
             timestamp=nextcord.utils.utcnow(),
@@ -404,6 +392,7 @@ class Warframe(commands.Cog):
         description="Shows the average prices of all your watchlist items.",
     )
     async def wl_calc(self, interaction: nextcord.Interaction):
+        asyncio.create_task(DeferTimer.start(interaction, timeout = 2.0))
         items = await get_wl_items(interaction)
         if not items:
             embed = nextcord.Embed(
@@ -414,6 +403,7 @@ class Warframe(commands.Cog):
             return await interaction.send(embed=embed)
         embed = await build_embed(interaction, self.wfm_cache)
         await interaction.send(embed=embed)
+
 
     @watchlist.subcommand(name="clear", description="Clears your watchlist.")
     async def _wl_clear(self, interaction: nextcord.Interaction):
@@ -447,7 +437,7 @@ class Warframe(commands.Cog):
             return await interaction.send(embed=embed)
 
         embed = nextcord.Embed(
-            title="Your Watchlist:",
+            title=f"Your Watchlist ({platforms_visualized[items[0]['platform']]})",
             description="",
             color=bot_basic_color,
             timestamp=nextcord.utils.utcnow(),
@@ -470,10 +460,15 @@ class Warframe(commands.Cog):
             )
             return await interaction.send(embed=embed)
 
-        file = await export_as_file(interaction)
+        file = await export_as_file(interaction, self.wfm_cache)
         await interaction.send(file=file)
 
-    # fissures
+
+
+    # FISSURES
+
+
+
     @wf.subcommand(
         name="fissures",
         description="Shows you all active fissures and sorts them by efficiency.",
@@ -539,7 +534,7 @@ class Warframe(commands.Cog):
 
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"https://api.warframestat.us/{platform}/voidTrader/",
+                f"https://api.warframestat.us/{platform}/voidTrader/?language=en",
                 headers={"language": "en"},
             ) as resp:
                 if resp.status != 200:

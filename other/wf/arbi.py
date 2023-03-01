@@ -6,7 +6,7 @@ from nextcord import Embed, utils
 async def build_arbi_embed(platform: str):
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            f"https://api.warframestat.us/{platform}/arbitration/",
+            f"https://api.warframestat.us/{platform}/arbitration/?language=en",
             headers={"language": "en"},
         ) as resp:
             if resp.status != 200:

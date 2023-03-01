@@ -2,7 +2,8 @@ import datetime
 import nextcord
 
 
-"""<t:1624385691:t>
+"""
+<t:1624385691:t>
 <t:1624385691:T>
 <t:1624385691:d>
 <t:1624385691:D>
@@ -15,7 +16,8 @@ import nextcord
     June 22, 2021
     June 22, 2021 8:14 PM
     Tuesday, June 22, 2021 8:14 PM
-    a year ago"""
+    a year ago
+"""
 
 
 def to_timestamp(time: datetime.datetime, format: str = "t"):
