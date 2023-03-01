@@ -1,5 +1,5 @@
 from other.wf.errors import ModRankError
-from other.wf.average import get_avg
+from other.wf.average import get_average
 from other.wf.void_fissures import vf
 from other.wf.search import WFBrowser, single_search_form_embed
 from other.wf.utils import check_mod_rank, is_mod

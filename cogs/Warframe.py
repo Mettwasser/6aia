@@ -191,10 +191,12 @@ class Warframe(commands.Cog):
                     view.form_embed()
                     if view.max_orders > 1
                     else single_search_form_embed(
-                        self.search_filter,
-                        self.mod_rank,
-                        self.json_content,
-                        self.item_name,
+                        search_filter,
+                        mod_rank,
+                        json_content,
+                        url_name,
+                        self.wfm_cache,
+                        platform
                     )
                 )
             except IndexError as e:
@@ -258,13 +260,13 @@ class Warframe(commands.Cog):
             asyncio.create_task(DeferTimer.start(interaction))
             item_is_mod = await is_mod(url_name, self.wfm_cache)
 
-            avg_price, total_sales, moving_avg = await get_avg(
+            itemavg = await get_average(
                 platform, url_name, actual_name, mod_rank, self.wfm_cache
             )
 
             embed = nextcord.Embed(color=bot_basic_color)
             embed.title = f"Average price of {to_item_name(url_name)} {'(R{})'.format(mod_rank) if item_is_mod else ''}"
-            embed.description = f"Average price: **{avg_price}**\n**{total_sales}** sales in the last 48 hours\nMoving average: **{moving_avg}**"
+            embed.description = f"Average price: **{itemavg.average_prive}**\n**{itemavg.total_sales}** sales in the last 48 hours\nMoving average: **{itemavg.moving_average}**"
             embed.set_footer(text=f"Last cached", icon_url="https://image.winudf.com/v2/image/bWFya2V0LndhcmZyYW1lX2ljb25fMTUzODM1NjAxOV8wMjI/icon.png?w=&fakeurl=1")
             embed.timestamp = datetime.datetime.fromtimestamp(self.wfm_cache.cache_time[platform][HOST + f'/items/{url_name}/statistics'])
             await interaction.send(embed=embed)

@@ -2,51 +2,61 @@ import aiohttp
 from .utils import HOST, check_mod_rank
 from ..WFMCache import *
 
+class ItemAverage:
+    def __init__(self, average_prive: float, total_sales: int, moving_average: float) -> None:
+        self.average_prive = average_prive
+        self.total_sales = total_sales
+        self.moving_average = moving_average
 
-async def get_avg(
+
+async def get_average(
     platform: str,
     item_url_name: str,
     normal_item_name: str,
     mod_rank: int,
     wfm_cache: WFMCache,
-):
-    try:
-        r = (await wfm_cache._request(HOST + f"/items/{item_url_name}/statistics", platform=platform))["payload"]["statistics_closed"]["48hours"]
+) -> ItemAverage:
+    r = (await wfm_cache._request(HOST + f"/items/{item_url_name}/statistics", platform=platform))["payload"]["statistics_closed"]["48hours"]
 
-        await check_mod_rank(wfm_cache, item_url_name, mod_rank)
+    # check if the item has a mod rnak
+    await check_mod_rank(wfm_cache, item_url_name, mod_rank)
 
-        r = list(
-            filter(
-                lambda item: (
-                    item["mod_rank"] == mod_rank if "mod_rank" in item else True
-                ),
-                r,
-            )
+
+    # filter mod rank
+    sales = list(
+        filter(
+            lambda item: (
+                item["mod_rank"] == mod_rank if "mod_rank" in item else True
+            ),
+            r,
+        )
+    )
+
+    if not sales:
+        raise IndexError(
+            f"{normal_item_name} {'(Rank {})'.format(mod_rank) if mod_rank is not None else ''} had no sales in the last 48 hours."
         )
 
-        if not r:
-            raise IndexError(
-                f"{normal_item_name} {'(Rank {})'.format(mod_rank) if mod_rank is not None else ''} had no sales in the last 48 hours."
-            )
+    price_of_all = sum([item_sold["avg_price"] for item_sold in sales])
+    total_sales = len(sales)
 
-        price_of_all = 0
-        total = len(r)
-        for item_sold in r:
-            price_of_all += item_sold["avg_price"]
+    moving_avg = None
 
-        for x in r:
-            try:
-                moving_avg = x["moving_avg"]
-                break
-            except KeyError:
-                continue
+    # try to get the moving average
+    for item in sales:
+        if "moving_avg" in item:
+            moving_avg = item["moving_avg"]
+            break
 
-        if "moving_avg" not in locals():
-            moving_avg = "-"
 
-        avg_price = round((price_of_all / total), 1)
-        return (avg_price, total, moving_avg)
-    except Exception as e:
-        if isinstance(e, KeyError):
-            raise KeyError(normal_item_name)  # for wl
-        raise e
+    # heck if moving average was found
+    if moving_avg is None:
+        moving_avg = "-"
+
+
+    # calculate average price
+    avg_price = round((price_of_all / total_sales), 1)
+
+
+    return ItemAverage(avg_price, total_sales, moving_avg)
+
