@@ -49,7 +49,7 @@ async def get_average(
             break
 
 
-    # heck if moving average was found
+    # check if moving average was found
     if moving_avg is None:
         moving_avg = "-"
 
