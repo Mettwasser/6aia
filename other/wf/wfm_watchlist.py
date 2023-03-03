@@ -2,7 +2,7 @@ import asyncio
 import asqlite, nextcord, datetime
 from discord import Interaction
 from ..utils import disable_buttons, to_timestamp
-from .utils import ModRankError, check_mod_rank, HOST, platforms_visualized
+from .utils import ModRankError, check_mod_rank, WFMHOST, platforms_visualized
 from main import bot_basic_color
 from nextcord.ext import application_checks
 from io import StringIO
@@ -103,7 +103,7 @@ async def get_avg_wl(
     wfm_cache: WFMCache,
 ):
     try:
-        json = (await wfm_cache._request(HOST + f"/items/{item_url_name}/statistics", platform=platform))["payload"]["statistics_closed"]["48hours"]
+        json = (await wfm_cache._request(WFMHOST + f"/items/{item_url_name}/statistics", platform=platform))["payload"]["statistics_closed"]["48hours"]
 
         await check_mod_rank(wfm_cache, item_url_name, mod_rank)
         item_is_mod = await wl_is_mod(interaction, item_url_name)
@@ -168,7 +168,7 @@ async def build_embed(interaction: Interaction, wfm_cache: WFMCache):
                 raise result
             else:
                 embed.description += f"**{to_item_name(result[2])}{' (Rank {})'.format(result[4]) if result[3] else ''}**\nAverage price: **{result[0]}**\n**{result[1]}**" + \
-                f" sales in the last 48 hours\n{to_timestamp(datetime.datetime.fromtimestamp(wfm_cache.cache_time[platform][HOST + f'/items/{result[2]}/statistics']), 'R')}\n\n"
+                f" sales in the last 48 hours\n{to_timestamp(datetime.datetime.fromtimestamp(wfm_cache.cache_time[platform][WFMHOST + f'/items/{result[2]}/statistics']), 'R')}\n\n"
 
         except KeyError as e:
             embed.description += f"Unable to find the item `({e.args[0]})`\n\n"

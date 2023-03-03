@@ -1,6 +1,9 @@
 from main import bot_basic_color
 
-import nextcord, requests, aiohttp, difflib, asyncio, sqlite3
+import nextcord
+import aiohttp
+import asyncio
+import sqlite3
 
 from other.utils import align
 from other.WFMCache import *
@@ -11,31 +14,8 @@ from other.wf.utils import platforms_visualized
 from nextcord.ext import commands
 
 # Item list for "autocompletion"
-HOST = "https://api.warframe.market/v1"
-item_dict: dict = requests.get(HOST + "/items").json()["payload"]["items"]
-item_names = [x["item_name"] for x in item_dict]
+WFMHOST = "https://api.warframe.market/v1"
 
-
-def set_item_urlname(item_name: str):
-
-    name = difflib.get_close_matches(
-        item_name.capitalize(), [x["url_name"] for x in item_dict]
-    )
-    if name:
-        return name[0].lower()
-    return None
-
-
-async def wfm_autocomplete(cog, interaction: nextcord.Interaction, kwarg: str):
-    if not kwarg:
-        # send the full autocomplete list
-        await interaction.response.send_autocomplete(item_names[0:24])
-        return
-    # send a list of nearest matches from the list of dog breeds
-    autocompletes = [
-        item for item in item_names if item.lower().startswith(kwarg.lower())
-    ]
-    await interaction.response.send_autocomplete(autocompletes[0:24])
 
 
 class Warframe(commands.Cog):
@@ -43,10 +23,23 @@ class Warframe(commands.Cog):
         self.bot = bot
         self.wfm_cache: WFMCache = WFMCache()
 
+
+    #################################################################################
+    #                               BASE WF COMMAND                                 #
+    #################################################################################
+
+
     @nextcord.slash_command(description="Warframe Command Prefix", name="wf")
     async def wf(self, interaction: nextcord.Interaction):
         # pass, this is just the command prefix, so we don't need to do anything
         pass
+
+
+
+
+    #################################################################################
+    #                            Warframe.Market related                            #
+    #################################################################################
 
     @wf.subcommand(
         name="market",
@@ -97,7 +90,7 @@ class Warframe(commands.Cog):
 
         try:
             await check_mod_rank(self.wfm_cache, url_name, mod_rank)
-            embed = single_search_form_embed(
+            embed = WFMSearch.single(
                 search_filter,
                 mod_rank,
                 json_content,
@@ -107,27 +100,12 @@ class Warframe(commands.Cog):
             )
             await interaction.send(content=None, embed=embed)
 
-        except KeyError:
-            await interaction.send(
-                f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
-            )
+        except Exception as e:
+            raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank)
 
-        except IndexError:
-            await interaction.send(
-                f"{actual_name} has no listings! (filter: {search_filter}{', rank: {}'. format(mod_rank) if await is_mod(url_name, self.wfm_cache) else ''})"
-            )
-
-        except AttributeError:
-            await interaction.send(
-                f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
-            )
-
-        except ModRankError as e:
-            await interaction.send(
-                f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
-            )
-
-        
+    @search.error
+    async def on_search_error(interaction: nextcord.Interaction, error):
+        WFMSearch.handle_search_error(interaction, error)
 
     # Market Search
     @market.subcommand(description="Searches multiple items on warframe.market.")
@@ -175,7 +153,7 @@ class Warframe(commands.Cog):
 
             await check_mod_rank(self.wfm_cache, url_name, mod_rank)
 
-            view = WFBrowser(
+            view = WFMSearch.WFBrowser(
                 json_content,
                 amount_to_look_up,
                 actual_name,
@@ -189,9 +167,9 @@ class Warframe(commands.Cog):
 
             try:
                 initial_embed = (
-                    view.form_embed()
+                    view.create_embed()
                     if view.max_orders > 1
-                    else single_search_form_embed(
+                    else WFMSearch.single(
                         search_filter,
                         mod_rank,
                         json_content,
@@ -207,25 +185,12 @@ class Warframe(commands.Cog):
             else:
                 await interaction.send(embed=initial_embed)
 
-        except KeyError as e:
-            await interaction.send(
-                f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
-            )
+        except Exception as e:
+            raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank)
 
-        except IndexError:
-            await interaction.send(
-                f"{actual_name} has no listings! (filter: {search_filter}{', rank: {}'. format(mod_rank) if await is_mod(url_name, self.wfm_cache) else ''})"
-            )
-
-        except AttributeError:
-            await interaction.send(
-                f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
-            )
-
-        except ModRankError as e:
-            await interaction.send(
-                f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
-            )
+    @searchmany.error
+    async def on_searchmany_error(interaction: nextcord.Interaction, error):
+        WFMSearch.handle_search_error(interaction, error)
 
     # Gets the Average price for an Item
     @market.subcommand(
@@ -269,23 +234,35 @@ class Warframe(commands.Cog):
             embed.title = f"Average price of {to_item_name(url_name)} {'(R{})'.format(mod_rank) if item_is_mod else ''}"
             embed.description = f"Average price: **{itemavg.average_prive}**\n**{itemavg.total_sales}** sales in the last 48 hours\nMoving average: **{itemavg.moving_average}**"
             embed.set_footer(text=f"Last cached", icon_url="https://image.winudf.com/v2/image/bWFya2V0LndhcmZyYW1lX2ljb25fMTUzODM1NjAxOV8wMjI/icon.png?w=&fakeurl=1")
-            embed.timestamp = datetime.datetime.fromtimestamp(self.wfm_cache.cache_time[platform][HOST + f'/items/{url_name}/statistics'])
+            embed.timestamp = datetime.datetime.fromtimestamp(self.wfm_cache.cache_time[platform][WFMHOST + f'/items/{url_name}/statistics'])
             await interaction.send(embed=embed)
 
-        except KeyError:
-            await interaction.send(
-                f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
-            )
+        except Exception as e:
+            raise SearchError(e, self.wfm_cache, url_name, None, mod_rank)
 
-        except IndexError as e:
-            await interaction.send(e.args[0])
+    @average.error
+    async def on_average_error(interaction: nextcord.Interaction, error):
+        WFMSearch.handle_search_error(interaction, error)
 
-        except ModRankError as e:
-            await interaction.send(
-                f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
-            )
 
-    # WATCHLIST STUFF
+
+
+
+
+
+
+
+
+
+
+
+
+    #################################################################################
+    #                               WATCHLIST COMMANDS                              #
+    #################################################################################
+
+
+
 
     @wf.subcommand(
         name="watchlist", description="Subcommand Group for the watchlist commands."
@@ -350,19 +327,17 @@ class Warframe(commands.Cog):
                 timestamp=nextcord.utils.utcnow(),
             )
             await interaction.send(embed=embed)
-        except KeyError:
-            return await interaction.send(
-                f"I was unable to find the item `({actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
-            )
-        except ModRankError as e:
-            return await interaction.send(
-                f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {actual_name}: {e.args[0]}`"
-            )
 
         except sqlite3.IntegrityError:
             return await interaction.send(
                 f"Failed to add the item: `{actual_name}{' ({})'.format(mod_rank) if item_is_mod else ''}` because it is already added."
             )
+        except Exception as e:
+            raise SearchError(e, self.wfm_cache, url_name, None, mod_rank)
+
+    @_wl_add.error
+    async def on_average_error(interaction: nextcord.Interaction, error):
+        WFMSearch.handle_search_error(interaction, error)
 
     @watchlist.subcommand(
         name="remove", description="Removes items from your watchlist."
@@ -468,7 +443,9 @@ class Warframe(commands.Cog):
 
 
 
-    # FISSURES
+    #################################################################################
+    #                             GENERAL WF COMMANDS                               #
+    #################################################################################
 
 
 
@@ -491,7 +468,7 @@ class Warframe(commands.Cog):
             default="pc",
         ),
     ):
-        active = await vf(platform)
+        active = await VoidFissures.get_current(platform)
         efficient = active["should"] if isinstance(active, dict) else None
         inefficient = active["shouldnt"] if isinstance(active, dict) else active
 
@@ -646,6 +623,24 @@ class Warframe(commands.Cog):
             )
         else:
             raise error
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #################################################################################
+    #                             CALCULATION COMMANDS                              #
+    #################################################################################
+
+
 
     @wf.subcommand(
         name="calculations",
