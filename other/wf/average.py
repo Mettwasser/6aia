@@ -1,5 +1,9 @@
-from .utils import HOST, check_mod_rank
-from ..WFMCache import *
+from other.wf.utils import check_mod_rank
+from utils import WFMHOST
+from typing import TYPE_CHECKING
+
+from other.WFMCache import WFMCache
+
 
 class ItemAverage:
     def __init__(self, average_prive: float, total_sales: int, moving_average: float) -> None:
@@ -15,7 +19,7 @@ async def get_average(
     mod_rank: int,
     wfm_cache: WFMCache,
 ) -> ItemAverage:
-    r = (await wfm_cache._request(HOST + f"/items/{item_url_name}/statistics", platform=platform))["payload"]["statistics_closed"]["48hours"]
+    r = (await wfm_cache._request(WFMHOST + f"/items/{item_url_name}/statistics", platform=platform))["payload"]["statistics_closed"]["48hours"]
 
     # check if the item has a mod rnak
     await check_mod_rank(wfm_cache, item_url_name, mod_rank)
