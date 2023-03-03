@@ -4,14 +4,15 @@ from main import bot_basic_color
 from typing import Iterable
 from datetime import datetime
 
-from cogs.Warframe import WFMHOST
+from utils import WFMHOST
 
 from errors import ModRankError
 from utils import is_mod
 from .wfm_watchlist import to_item_name
 
-from ..WFMCache import WFMCache
-from ..utils import disable_buttons
+from other.utils import disable_buttons
+from other.WFMCache import WFMCache
+    
 
 class SearchError(Exception):
     def __init__(

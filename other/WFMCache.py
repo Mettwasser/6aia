@@ -1,5 +1,5 @@
 import aiohttp, time, datetime
-from .wf import errors
+from other.wf.errors import APIError
 
 class WFMCache:
     def __init__(self):
@@ -24,6 +24,6 @@ class WFMCache:
                 self.cache_time[platform][path] = time.time()
                 self.cache[platform][path] = json
             else:
-                raise errors.APIError()
+                raise APIError()
 
             return json

@@ -1,11 +1,10 @@
+WFMHOST = "https://api.warframe.market/v1"
 import difflib
 import requests
 import nextcord
 
-from cogs.Warframe import WFMHOST
-
-from .errors import ModRankError
-from ..WFMCache import *
+from other.wf.errors import ModRankError
+from other.WFMCache import WFMCache
 
 item_dict: dict = requests.get(WFMHOST + "/items").json()["payload"]["items"]
 item_names = [x["item_name"] for x in item_dict]

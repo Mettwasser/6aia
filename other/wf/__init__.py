@@ -2,7 +2,7 @@ from other.wf.errors import ModRankError
 from other.wf.average import get_average
 from other.wf.void_fissures import VoidFissures
 from other.wf.search import WFMSearch, SearchError
-from other.wf.utils import check_mod_rank, is_mod, wfm_autocomplete, set_item_urlname
+from other.wf.utils import check_mod_rank, is_mod, wfm_autocomplete, set_item_urlname, WFMHOST
 from other.wf.wfm_watchlist import (
     to_item_name,
     wl_add,

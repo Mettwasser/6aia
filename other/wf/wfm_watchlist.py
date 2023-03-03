@@ -1,13 +1,12 @@
 import asyncio
 import asqlite, nextcord, datetime
 from discord import Interaction
-from ..utils import disable_buttons, to_timestamp
-from .utils import ModRankError, check_mod_rank, WFMHOST, platforms_visualized
+from other.utils import disable_buttons, to_timestamp
+from other.wf.utils import ModRankError, check_mod_rank, WFMHOST, platforms_visualized
 from main import bot_basic_color
 from nextcord.ext import application_checks
 from io import StringIO
-from other.WFMCache import *
-
+from other.WFMCache import WFMCache
 DB = "wfm_wl.db"
 
 

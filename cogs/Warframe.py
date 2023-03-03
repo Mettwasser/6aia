@@ -6,16 +6,13 @@ import asyncio
 import sqlite3
 
 from other.utils import align
-from other.WFMCache import *
+from other.WFMCache import WFMCache
 from other.DeferTimer import DeferTimer
 from other.wf import *
 from other.wf.utils import platforms_visualized
 
 from nextcord.ext import commands
-
-# Item list for "autocompletion"
-WFMHOST = "https://api.warframe.market/v1"
-
+from datetime import datetime
 
 
 class Warframe(commands.Cog):
@@ -234,7 +231,7 @@ class Warframe(commands.Cog):
             embed.title = f"Average price of {to_item_name(url_name)} {'(R{})'.format(mod_rank) if item_is_mod else ''}"
             embed.description = f"Average price: **{itemavg.average_prive}**\n**{itemavg.total_sales}** sales in the last 48 hours\nMoving average: **{itemavg.moving_average}**"
             embed.set_footer(text=f"Last cached", icon_url="https://image.winudf.com/v2/image/bWFya2V0LndhcmZyYW1lX2ljb25fMTUzODM1NjAxOV8wMjI/icon.png?w=&fakeurl=1")
-            embed.timestamp = datetime.datetime.fromtimestamp(self.wfm_cache.cache_time[platform][WFMHOST + f'/items/{url_name}/statistics'])
+            embed.timestamp = datetime.fromtimestamp(self.wfm_cache.cache_time[platform][WFMHOST + f'/items/{url_name}/statistics'])
             await interaction.send(embed=embed)
 
         except Exception as e:
