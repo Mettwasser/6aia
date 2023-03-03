@@ -1,4 +1,3 @@
-import aiohttp
 from .utils import HOST, check_mod_rank
 from ..WFMCache import *
 
