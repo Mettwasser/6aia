@@ -1,13 +1,14 @@
-import asyncio
-import sqlite3
-import nextcord, requests, aiohttp, difflib
-from nextcord.ext import commands
 from main import bot_basic_color
-from other.wf import *
-from other.utils import align, to_timestamp
+
+import nextcord, requests, aiohttp, difflib, asyncio, sqlite3
+
+from other.utils import align
 from other.WFMCache import *
 from other.DeferTimer import DeferTimer
+from other.wf import *
 from other.wf.utils import platforms_visualized
+
+from nextcord.ext import commands
 
 # Item list for "autocompletion"
 HOST = "https://api.warframe.market/v1"
@@ -631,7 +632,7 @@ class Warframe(commands.Cog):
             default="pc",
         ),
     ):
-        embed = await Arbitration.get_current(platform)
+        embed: nextcord.Embed = await Arbitration.get_current(platform)
         await interaction.send(embed=embed)
 
     @arbitration.error
@@ -643,6 +644,8 @@ class Warframe(commands.Cog):
                 color=bot_basic_color,
                 )
             )
+        else:
+            raise error
 
     @wf.subcommand(
         name="calculations",
