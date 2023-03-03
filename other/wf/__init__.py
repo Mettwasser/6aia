@@ -16,5 +16,6 @@ from other.wf.wfm_watchlist import (
 from other.wf.worldstates import cycles
 from other.wf.sortie import sortie_embed
 from other.wf.invasions import invasion_embed
-from other.wf.arbi import build_arbi_embed
+from other.wf.arbi import Arbitration
 from other.wf.calculations import calc_ehp, EnemyHP, EnemyArmor, EnemyShields, EnemyDamage, EnemyOverguard, EnemyAffinity, human_format
+from other.wf.errors import APIError, ModRankError, NoSales

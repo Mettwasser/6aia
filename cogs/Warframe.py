@@ -614,9 +614,9 @@ class Warframe(commands.Cog):
         await interaction.send(embed=embed)
 
     @wf.subcommand(
-        name="arbi", description="Shows you the current Arbitration. (Unstable)"
+        name="arbitration", description="Shows you the current Arbitration. (Unstable)"
     )
-    async def arbi(
+    async def arbitration(
         self,
         interaction: nextcord.Interaction,
         platform: str = nextcord.SlashOption(
@@ -631,8 +631,18 @@ class Warframe(commands.Cog):
             default="pc",
         ),
     ):
-        embed = await build_arbi_embed(platform)
+        embed = await Arbitration.get_current(platform)
         await interaction.send(embed=embed)
+
+    @arbitration.error
+    async def on_arbitration_error(interaction: nextcord.Interaction, error):
+        if isinstance(error, APIError):
+            await interaction.send(embed=nextcord.Embed(
+                title="Error",
+                description="An error occured. This is probably due to an API error.",
+                color=bot_basic_color,
+                )
+            )
 
     @wf.subcommand(
         name="calculations",
