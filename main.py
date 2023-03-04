@@ -27,9 +27,9 @@ async def on_ready():
 
 
 # Overwrite default error handler
-# @bot.event
-# async def on_application_command_error(interaction: nextcord.Interaction, error):
-#     pass
+@bot.event
+async def on_application_command_error(interaction: nextcord.Interaction, error):
+    pass
 
 
 # Load Cogs
