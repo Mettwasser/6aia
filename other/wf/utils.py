@@ -1,14 +1,10 @@
-from __future__ import annotations
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from WFMCache import WFMCache
-from other.WFMCache import WFMCache
 WFMHOST = "https://api.warframe.market/v1"
 import difflib
 import requests
 import nextcord
 
-from other.wf.Errors import ModRankError
+from other.wf.errors import ModRankError
+from other.WFMCache import WFMCache
 
 item_dict: dict = requests.get(WFMHOST + "/items").json()["payload"]["items"]
 item_names = [x["item_name"] for x in item_dict]
@@ -20,7 +16,9 @@ async def check_mod_rank(wfm_cache: WFMCache, url_name: str, mod_rank: int):
 
     if "mod_max_rank" in json_content["payload"]["item"]["items_in_set"][0]:
 
-        mod_max_rank = json_content["payload"]["item"]["items_in_set"][0]["mod_max_rank"]
+        mod_max_rank = json_content["payload"]["item"]["items_in_set"][0][
+            "mod_max_rank"
+        ]
         if mod_rank > mod_max_rank:
             raise ModRankError(
                 mod_max_rank, url_name
@@ -33,6 +31,7 @@ async def is_mod(
 ):
     json_content = await wfm_cache._request(WFMHOST + f"/items/{url_name}")
     return "mod_max_rank" in json_content["payload"]["item"]["items_in_set"][0]
+
 
 platforms_visualized = {
     "ps4": "PlayStation",
@@ -47,10 +46,9 @@ def set_item_urlname(item_name: str):
     name = difflib.get_close_matches(
         item_name.capitalize(), [x["url_name"] for x in item_dict]
     )
-    if not name:
-        return None
-    
-    return name[0]
+    if name:
+        return name[0].lower()
+    return None
 
 
 async def wfm_autocomplete(cog, interaction: nextcord.Interaction, kwarg: str):

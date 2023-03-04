@@ -1,25 +1,22 @@
-from __future__ import annotations
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from WFMCache import WFMCache
-
 import nextcord
 from main import bot_basic_color
 
 from typing import Iterable
 from datetime import datetime
 
-from other.wf.utils import WFMHOST
+from utils import WFMHOST
 
-from other.wf.Errors import ModRankError, ItemNotFound
-from other.wf.utils import is_mod
-from other.wf.wfm_watchlist import to_item_name
+from errors import ModRankError
+from utils import is_mod
+from .wfm_watchlist import to_item_name
 
-from other.utils import disable_buttons    
+from other.utils import disable_buttons
+from other.WFMCache import WFMCache
+    
 
 class SearchError(Exception):
     def __init__(
-            self,
+            self, 
             error, 
             wfm_cache: WFMCache,
             url_name: str,
@@ -310,7 +307,7 @@ class WFMSearch:
     @staticmethod
     def single(
         search_filter: str, mod_rank: int, json_content: dict, url_name: str, wfm_cache: WFMCache, platform: str
-    ) -> nextcord.Embed:
+    ):
         filtered_wfm = list(
             filter(
                 lambda item: (
@@ -408,14 +405,19 @@ class WFMSearch:
 
         error = search_error.original_error
 
-        if isinstance(error, KeyError) or isinstance(error, ItemNotFound) or isinstance(error, AttributeError):
+        if isinstance(error, KeyError):
             return await interaction.send(
-                f"I was unable to find the item `{search_error.actual_name}` you were trying to search. Please make sure to have the correct **spelling** of the item you want to search up."
+                f"I was unable to find the item `({search_error.actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
             )
 
         elif isinstance(error, IndexError):
             return await interaction.send(
                 f"{search_error.actual_name} has no listings! (filter: {search_error.search_filter}{', rank: {}'. format(search_error.mod_rank) if await is_mod(search_error.url_name, search_error.wfm_cache) else ''})"
+            )
+
+        elif isinstance(error, AttributeError):
+            return await interaction.send(
+                f"I was unable to find the item `({search_error.actual_name})` you were trying to search. Please make sure to have the correct `spelling` of the item you want to search up."
             )
 
         elif isinstance(error, ModRankError):
@@ -424,7 +426,4 @@ class WFMSearch:
             )
         
         else:
-            await interaction.send(
-                f"```Ignoring exception in command {interaction.application_command}\n{type(error)} {error} {error.__traceback__}```\nReport to dev.",
-                ephemeral=True,
-            )
+            raise error

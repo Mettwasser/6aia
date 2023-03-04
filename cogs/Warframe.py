@@ -5,10 +5,11 @@ import aiohttp
 import asyncio
 import sqlite3
 
-from other.utils import Align
-from other.wf import *
+from other.utils import align
 from other.WFMCache import WFMCache
 from other.DeferTimer import DeferTimer
+from other.wf import *
+from other.wf.utils import platforms_visualized
 
 from nextcord.ext import commands
 from datetime import datetime
@@ -78,15 +79,13 @@ class Warframe(commands.Cog):
             default="ingame",
         ),
     ):
+        url_name = set_item_urlname(actual_name)
+
+        asyncio.create_task(DeferTimer.start(interaction))
+        params={"include": "item"}
+        json_content = await self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders", platform=platform, params=params)
 
         try:
-            url_name = set_item_urlname(actual_name)
-            if not url_name:
-                raise ItemNotFound()
-
-            asyncio.create_task(DeferTimer.start(interaction))
-            params={"include": "item"}
-            json_content = await self.wfm_cache._request(f"https://api.warframe.market/v1/items/{url_name.lower()}/orders", platform=platform, params=params)
             await check_mod_rank(self.wfm_cache, url_name, mod_rank)
             embed = WFMSearch.single(
                 search_filter,
@@ -102,8 +101,8 @@ class Warframe(commands.Cog):
             raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank)
 
     @search.error
-    async def on_search_error(self, interaction: nextcord.Interaction, error):
-        await WFMSearch.handle_search_error(interaction, error)
+    async def on_search_error(interaction: nextcord.Interaction, error):
+        WFMSearch.handle_search_error(interaction, error)
 
     # Market Search
     @market.subcommand(description="Searches multiple items on warframe.market.")
@@ -143,9 +142,7 @@ class Warframe(commands.Cog):
     ):
         try:
             url_name = set_item_urlname(actual_name)
-            if not url_name:
-                raise ItemNotFound()
-            
+
             asyncio.create_task(DeferTimer.start(interaction))
 
             params = {"include": "item"}
@@ -189,8 +186,8 @@ class Warframe(commands.Cog):
             raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank)
 
     @searchmany.error
-    async def on_searchmany_error(self, interaction: nextcord.Interaction, error):
-        await WFMSearch.handle_search_error(interaction, error)
+    async def on_searchmany_error(interaction: nextcord.Interaction, error):
+        WFMSearch.handle_search_error(interaction, error)
 
     # Gets the Average price for an Item
     @market.subcommand(
@@ -221,15 +218,12 @@ class Warframe(commands.Cog):
             default=0,
         ),
     ):
+        url_name = set_item_urlname(actual_name)
         try:
-            url_name = set_item_urlname(actual_name)
-            if not url_name:
-                raise ItemNotFound()
-            
             asyncio.create_task(DeferTimer.start(interaction))
             item_is_mod = await is_mod(url_name, self.wfm_cache)
 
-            itemavg = await ItemAverage.get_average(
+            itemavg = await get_average(
                 platform, url_name, actual_name, mod_rank, self.wfm_cache
             )
 
@@ -241,11 +235,11 @@ class Warframe(commands.Cog):
             await interaction.send(embed=embed)
 
         except Exception as e:
-            raise SearchError(e, self.wfm_cache, actual_name, None, mod_rank)
+            raise SearchError(e, self.wfm_cache, url_name, None, mod_rank)
 
     @average.error
-    async def on_average_error(self, interaction: nextcord.Interaction, error):
-        await WFMSearch.handle_search_error(interaction, error)
+    async def on_average_error(interaction: nextcord.Interaction, error):
+        WFMSearch.handle_search_error(interaction, error)
 
 
 
@@ -302,13 +296,13 @@ class Warframe(commands.Cog):
             default=0,
         ),
     ):
+        url_name = set_item_urlname(actual_name)
+        items = await get_wl_items(interaction)
+        if len(items) >= 3:
+            return await interaction.send(
+                "You can only have 3 items to your watchlist!"
+            )
         try:
-            url_name = set_item_urlname(actual_name)
-            items = await get_wl_items(interaction)
-            if len(items) >= 3:
-                return await interaction.send(
-                    "You can only have 3 items to your watchlist!"
-                )
             await check_mod_rank(self.wfm_cache, url_name, mod_rank)
             item_is_mod = await is_mod(url_name, self.wfm_cache)
 
@@ -340,7 +334,7 @@ class Warframe(commands.Cog):
 
     @_wl_add.error
     async def on_average_error(interaction: nextcord.Interaction, error):
-        await WFMSearch.handle_search_error(interaction, error)
+        WFMSearch.handle_search_error(interaction, error)
 
     @watchlist.subcommand(
         name="remove", description="Removes items from your watchlist."
@@ -382,7 +376,7 @@ class Warframe(commands.Cog):
                 timestamp=nextcord.utils.utcnow(),
             )
             return await interaction.send(embed=embed)
-        embed = await wfm_wl_build_embed(interaction, self.wfm_cache)
+        embed = await build_embed(interaction, self.wfm_cache)
         await interaction.send(embed=embed)
 
 
@@ -471,13 +465,29 @@ class Warframe(commands.Cog):
             default="pc",
         ),
     ):
-        embed = await VoidFissures.get_current(platform)
+        active = await VoidFissures.get_current(platform)
+        efficient = active["should"] if isinstance(active, dict) else None
+        inefficient = active["shouldnt"] if isinstance(active, dict) else active
+
+        embed = nextcord.Embed(
+            title=f"Active Fissures ({platform})",
+            description="**Fissures you SHOULD run:**\n\n{}\n\n\n**Fissures you SHOULDN'T run:**\n\n{}".format(
+                "\n\n".join(efficient), "\n\n".join(inefficient)
+            )
+            if efficient is not None
+            else "**All Fissures**:{}".format("\n".join(inefficient)),
+            color=bot_basic_color,
+        )
+        embed.set_thumbnail(
+            url="https://static.wikia.nocookie.net/warframe/images/a/ae/VoidProjectionsIronD.png/revision/latest?cb=20160709035804"
+        )
+
         await interaction.send(embed=embed)
 
     # WORLD STATES
     @wf.subcommand(name="worldstates", description="Shows you all worldstates.")
     async def _worldstates(self, interaction: nextcord.Interaction):
-        embed = await Worldstates.get_all()
+        embed = await cycles()
         await interaction.send(embed=embed)
 
     @wf.subcommand(
@@ -556,7 +566,7 @@ class Warframe(commands.Cog):
             default="pc",
         ),
     ):
-        embed = await Sortie.get_current(platform)
+        embed = await sortie_embed(platform)
         await interaction.send(embed=embed)
 
     @wf.subcommand(name="invasions", description="Shows you the current invasions.")
@@ -575,7 +585,7 @@ class Warframe(commands.Cog):
             default="pc",
         ),
     ):
-        embed = await Invasion.get_current(platform)
+        embed = await invasion_embed(platform)
         await interaction.send(embed=embed)
 
     @wf.subcommand(
@@ -598,6 +608,18 @@ class Warframe(commands.Cog):
     ):
         embed: nextcord.Embed = await Arbitration.get_current(platform)
         await interaction.send(embed=embed)
+
+    @arbitration.error
+    async def on_arbitration_error(interaction: nextcord.Interaction, error):
+        if isinstance(error, APIError):
+            await interaction.send(embed=nextcord.Embed(
+                title="Error",
+                description="An error occured. This is probably due to an API error.",
+                color=bot_basic_color,
+                )
+            )
+        else:
+            raise error
 
 
 
@@ -662,7 +684,7 @@ class Warframe(commands.Cog):
 
         names = ["Health", "Armor", "Damage Reduction", "Damage Modifier"]
         values = [health, armor, drp, dmp]
-        desc = Align.align(names, values)
+        desc = align(names, values)
 
         embed = nextcord.Embed(
             title="Effective Hit Points",
@@ -685,7 +707,7 @@ class Warframe(commands.Cog):
         enemy_hp = human_format(enemy.calc())
         names = ["Base level", "Current Level", "Base HP"]
         values = [base_level, current_level, hp]
-        desc = Align.align(names, values)
+        desc = align(names, values)
 
         embed = nextcord.Embed(
             title="Enemy HP",
@@ -708,7 +730,7 @@ class Warframe(commands.Cog):
         enemy_shields = human_format(enemy.calc())
         names = ["Base level", "Current Level", "Base Shields"]
         values = [base_level, current_level, shields]
-        desc = Align.align(names, values)
+        desc = align(names, values)
 
         embed = nextcord.Embed(
             title="Enemy Shields",
@@ -731,7 +753,7 @@ class Warframe(commands.Cog):
         enemy_armor = human_format(enemy.calc())
         names = ["Base level", "Current Level", "Base Armor"]
         values = [base_level, current_level, armor]
-        desc = Align.align(names, values)
+        desc = align(names, values)
 
         embed = nextcord.Embed(
             title="Enemy Armor",
@@ -754,7 +776,7 @@ class Warframe(commands.Cog):
         enemy_overguard = human_format(enemy.calc())
         names = ["Base level", "Current Level", "Base Overguard"]
         values = [base_level, current_level, overguard]
-        desc = Align.align(names, values)
+        desc = align(names, values)
 
         embed = nextcord.Embed(
             title="Enemy Overguard",
@@ -777,7 +799,7 @@ class Warframe(commands.Cog):
         enemy_damage = human_format(enemy.calc())
         names = ["Base level", "Current Level", "Base Damage"]
         values = [base_level, current_level, damage]
-        desc = Align.align(names, values)
+        desc = align(names, values)
 
         embed = nextcord.Embed(
             title="Enemy Damage",
@@ -799,7 +821,7 @@ class Warframe(commands.Cog):
         enemy_affinity = human_format(enemy.calc())
         names = ["Current Level", "Base Affinity"]
         values = [current_level, affinity]
-        desc = Align.align(names, values)
+        desc = align(names, values)
 
         embed = nextcord.Embed(
             title="Enemy Affinity",

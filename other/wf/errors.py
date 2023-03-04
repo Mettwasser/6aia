@@ -1,8 +1,10 @@
 class APIError(Exception):
     pass
 
-class ItemNotFound(Exception):
+
+class NoSales(Exception):
     pass
+
 
 class ModRankError(Exception):
     def __init__(self, mod_max_rank, url_name, *args: object) -> None:

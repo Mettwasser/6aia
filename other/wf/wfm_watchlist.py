@@ -134,7 +134,7 @@ async def get_avg_wl(
         raise e
 
 
-async def wfm_wl_build_embed(interaction: Interaction, wfm_cache: WFMCache):
+async def build_embed(interaction: Interaction, wfm_cache: WFMCache):
     items = await get_wl_items(interaction)
     platform = items[0]["platform"]
 
@@ -182,7 +182,7 @@ async def wfm_wl_build_embed(interaction: Interaction, wfm_cache: WFMCache):
 
 
 async def export_as_file(interaction: Interaction, wfm_cache: WFMCache):
-    embed = await wfm_wl_build_embed(interaction, wfm_cache)
+    embed = await build_embed(interaction, wfm_cache)
     header = (
         f"Average prices of your watchlist - {nextcord.utils.utcnow().date()}\n\n\n"
     )
