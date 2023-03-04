@@ -13,7 +13,7 @@ from other.wf.wfm_watchlist import (
     WLRemoveView,
 )
 from other.wf.Worldstates import Worldstates
-from other.wf.sortie import Sortie
+from other.wf.Sortie import Sortie
 from other.wf.Invasion import Invasion
 from other.wf.Arbitration import Arbitration
 from other.wf.Calculations import calc_ehp, EnemyHP, EnemyArmor, EnemyShields, EnemyDamage, EnemyOverguard, EnemyAffinity, human_format
