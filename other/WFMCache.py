@@ -1,5 +1,5 @@
 import aiohttp, time, datetime
-from other.wf.errors import APIError
+from other.wf.Errors import APIError
 
 class WFMCache:
     def __init__(self):

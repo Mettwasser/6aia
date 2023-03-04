@@ -1,21 +1,20 @@
-from other.wf.errors import ModRankError
-from other.wf.average import get_average
-from other.wf.void_fissures import VoidFissures
-from other.wf.search import WFMSearch, SearchError
-from other.wf.utils import check_mod_rank, is_mod, wfm_autocomplete, set_item_urlname, WFMHOST
+from other.wf.Average import ItemAverage
+from other.wf.VoidFissures import VoidFissures
+from other.wf.Search import WFMSearch, SearchError
+from other.wf.utils import check_mod_rank, is_mod, wfm_autocomplete, set_item_urlname, WFMHOST, platforms_visualized
 from other.wf.wfm_watchlist import (
     to_item_name,
     wl_add,
     get_wl_items,
-    build_embed,
+    wfm_wl_build_embed,
     wl_is_mod,
     clear_wl_items,
     export_as_file,
     WLRemoveView,
 )
-from other.wf.worldstates import cycles
-from other.wf.sortie import sortie_embed
-from other.wf.invasions import invasion_embed
-from other.wf.arbi import Arbitration
-from other.wf.calculations import calc_ehp, EnemyHP, EnemyArmor, EnemyShields, EnemyDamage, EnemyOverguard, EnemyAffinity, human_format
-from other.wf.errors import APIError, ModRankError, NoSales
+from other.wf.Worldstates import Worldstates
+from other.wf.sortie import Sortie
+from other.wf.Invasion import Invasion
+from other.wf.Arbitration import Arbitration
+from other.wf.Calculations import calc_ehp, EnemyHP, EnemyArmor, EnemyShields, EnemyDamage, EnemyOverguard, EnemyAffinity, human_format
+from other.wf.Errors import APIError, ModRankError, ItemNotFound

@@ -1,7 +1,7 @@
 import aiohttp, datetime
 from main import bot_basic_color
 from nextcord import Embed, utils
-from errors import APIError
+from other.wf.Errors import APIError
 
 class Arbitration:
 
@@ -32,7 +32,7 @@ class Arbitration:
 
         embed = Embed(
             title="Current Arbitration",
-            description=f"Node: {r['node']}\n\nEnemy: {r['enemy']}\n\nMission Type: {r['type']}\n\nExpires in: {eta}",
+            description=f"Node: {r['node']}\n\nEnemy: {r['enemy'] if 'enemy' in r else '-'}\n\nMission Type: {r['type']}\n\nExpires in: {eta}",
             color=bot_basic_color,
         )
 
