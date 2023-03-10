@@ -6,10 +6,10 @@ from other.wf.Errors import APIError
 class Arbitration:
 
     @staticmethod
-    async def get_current(platform: str) -> Embed:
+    async def get_current() -> Embed:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"https://api.warframestat.us/{platform}/arbitration/?language=en",
+                "https://api.warframestat.us/pc/arbitration/?language=en",
                 headers={"language": "en"},
             ) as resp:
                 if resp.status != 200:

@@ -1,4 +1,4 @@
-import nextcord, asyncio, aiohttp
+import nextcord, aiohttp
 from nextcord.ext import commands, tasks
 
 
@@ -7,7 +7,7 @@ class StatusLoop(commands.Cog):
         self.bot = bot
         self.barocheck.start()
 
-    @tasks.loop(minutes=15)
+    @tasks.loop(minutes=60)
     async def barocheck(self):
         async with aiohttp.ClientSession() as session:
             async with session.get(

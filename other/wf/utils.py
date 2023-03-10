@@ -31,6 +31,7 @@ async def is_mod(
     url_name: str,
     wfm_cache: WFMCache,
 ):
+    print(f"is_mod urlname: {url_name}")
     json_content = await wfm_cache._request(WFMHOST + f"/items/{url_name}")
     return "mod_max_rank" in json_content["payload"]["item"]["items_in_set"][0]
 

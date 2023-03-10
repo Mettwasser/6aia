@@ -18,3 +18,4 @@ from other.wf.Invasion import Invasion
 from other.wf.Arbitration import Arbitration
 from other.wf.Calculations import calc_ehp, EnemyHP, EnemyArmor, EnemyShields, EnemyDamage, EnemyOverguard, EnemyAffinity, human_format
 from other.wf.Errors import APIError, ModRankError, ItemNotFound
+from other.wf.Baro import Baro

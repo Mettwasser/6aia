@@ -2,12 +2,14 @@ import nextcord, aiohttp
 from main import bot_basic_color
 
 class Sortie:
+    url = "https://api.warframestat.us/pc/sortie/?language=en"
+
 
     @staticmethod
-    async def get_current(platform: str) -> nextcord.Embed:
+    async def get_current() -> nextcord.Embed:
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"https://api.warframestat.us/{platform}/sortie/?language=en",
+                Sortie.url,
                 headers={"language": "en"},
             ) as resp:
                 if resp.status != 200:
@@ -19,8 +21,6 @@ class Sortie:
 
                 r = await resp.json()
 
-        title = f"Current Sortie"
-
         missions = [
             [
                 x["node"],
@@ -30,7 +30,7 @@ class Sortie:
             for x in r["variants"]
         ]
         embed = nextcord.Embed(
-            title=title,
+            title="Current Sortie",
             description=f"""
     **First Mission**
 Node: {missions[0][0]}

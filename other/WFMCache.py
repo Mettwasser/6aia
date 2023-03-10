@@ -19,6 +19,8 @@ class WFMCache:
         async with self.session.get(path, headers=headers, params=params) as response:
             if self.do_debug:
                 print(f"Used live value for {path} at {datetime.datetime.now()}")
+                print(f"\n\nRequest sent to following URL: {response.url}\nwith headers: {headers}\nand status code {response.status}\n")
+
             if response.status == 200:
                 json = await response.json()
                 self.cache_time[platform][path] = time.time()
