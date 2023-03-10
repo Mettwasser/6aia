@@ -99,7 +99,7 @@ class Warframe(commands.Cog):
             await interaction.send(content=None, embed=embed)
 
         except Exception as e:
-            raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank)
+            raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank, platform)
 
     @search.error
     async def on_search_error(self, interaction: nextcord.Interaction, error):
@@ -186,7 +186,7 @@ class Warframe(commands.Cog):
                 await interaction.send(embed=initial_embed)
 
         except Exception as e:
-            raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank)
+            raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank, platform)
 
     @searchmany.error
     async def on_searchmany_error(self, interaction: nextcord.Interaction, error):
@@ -227,7 +227,6 @@ class Warframe(commands.Cog):
                 raise ItemNotFound()
             
             asyncio.create_task(DeferTimer.start(interaction))
-            print(url_name)
             item_is_mod = await is_mod(url_name, self.wfm_cache)
 
             itemavg = await ItemAverage.get_average(
@@ -242,7 +241,7 @@ class Warframe(commands.Cog):
             await interaction.send(embed=embed)
 
         except Exception as e:
-            raise SearchError(e, self.wfm_cache, actual_name, None, mod_rank)
+            raise SearchError(e, self.wfm_cache, url_name, None, mod_rank, platform)
 
     @average.error
     async def on_average_error(self, interaction: nextcord.Interaction, error):
@@ -337,7 +336,7 @@ class Warframe(commands.Cog):
                 f"Failed to add the item: `{actual_name}{' ({})'.format(mod_rank) if item_is_mod else ''}` because it is already added."
             )
         except Exception as e:
-            raise SearchError(e, self.wfm_cache, url_name, None, mod_rank)
+            raise SearchError(e, self.wfm_cache, url_name, None, mod_rank, platform)
 
     @_wl_add.error
     async def on_average_error(interaction: nextcord.Interaction, error):

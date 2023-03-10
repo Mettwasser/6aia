@@ -12,7 +12,7 @@ from datetime import datetime
 from other.wf.utils import WFMHOST
 
 from other.wf.Errors import ModRankError, ItemNotFound
-from other.wf.utils import is_mod
+from other.wf.utils import is_mod, platforms_visualized_wfm
 from other.wf.wfm_watchlist import to_item_name
 
 from other.utils import disable_buttons    
@@ -25,6 +25,7 @@ class SearchError(Exception):
             url_name: str,
             search_filter: str,
             mod_rank: int,
+            platform: str,
             *args: object
         ) -> None:
         super().__init__(*args)
@@ -34,6 +35,7 @@ class SearchError(Exception):
         self.original_error = error
         self.search_filter = search_filter
         self.mod_rank = mod_rank
+        self.platform = platform
 
 class WFMSearch:
 
@@ -409,22 +411,25 @@ class WFMSearch:
         error = search_error.original_error
 
         if isinstance(error, KeyError) or isinstance(error, ItemNotFound) or isinstance(error, AttributeError):
-            return await interaction.send(
-                f"I was unable to find the item `{search_error.actual_name}` you were trying to search. Please make sure to have the correct **spelling** of the item you want to search up."
-            )
+            title = "Invalid Item"
+            desc = f"I was unable to find the item `{search_error.actual_name}` you were trying to search. Please make sure to have the correct **spelling** of the item you want to search up."
+
 
         elif isinstance(error, IndexError):
-            return await interaction.send(
-                f"{search_error.actual_name} has no listings! (filter: {search_error.search_filter}{', rank: {}'. format(search_error.mod_rank) if await is_mod(search_error.url_name, search_error.wfm_cache) else ''})"
-            )
+            title = "No Offers"
+            desc = f"{search_error.actual_name} has no listings! (filter: {search_error.search_filter}{', rank: {}'. format(search_error.mod_rank) if await is_mod(search_error.url_name, search_error.wfm_cache) else ''})"
+
 
         elif isinstance(error, ModRankError):
-            return await interaction.send(
-                f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {search_error.actual_name}: {error.args[0]}`"
-            )
+            title = "Invalid Mod Rank"
+            desc  = f"The rank you entered is higher than the maximum rank of this item.\n`Max. Rank for {search_error.actual_name}: {error.args[0]}`"
+
         
         else:
-            await interaction.send(
-                f"```Ignoring exception in command {interaction.application_command}\n{type(error)} {error} {error.__traceback__}```\nReport to dev.",
-                ephemeral=True,
-            )
+            title = "Unexpected Error"
+            desc = f"```Ignoring exception in command {interaction.application_command}\n{type(error)} {error} {error.__traceback__}```\nReport to dev.",
+
+
+        print(search_error.platform)
+        title += f" ({platforms_visualized_wfm[search_error.platform]})"
+        await interaction.send(embed=nextcord.Embed(title=title, description=desc, color=bot_basic_color))

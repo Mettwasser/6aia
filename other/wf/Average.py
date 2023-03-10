@@ -23,7 +23,7 @@ class ItemAverage:
         wfm_cache: WFMCache,
     ) -> ItemAverage:
         
-        print(f"Platform: {platform}\nitem url name: {item_url_name}\nnormal item name; {normal_item_name}\n{mod_rank}")
+        
         r = (await wfm_cache._request(WFMHOST + f"/items/{item_url_name}/statistics", platform=platform))["payload"]["statistics_closed"]["48hours"]
 
         # check if the item has a mod rnak
