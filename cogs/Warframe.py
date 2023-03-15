@@ -99,7 +99,7 @@ class Warframe(commands.Cog):
             await interaction.send(content=None, embed=embed)
 
         except Exception as e:
-            raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank, platform)
+            raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank, platform, SearchErrorCommandType.Search)
 
     @search.error
     async def on_search_error(self, interaction: nextcord.Interaction, error):
@@ -186,7 +186,7 @@ class Warframe(commands.Cog):
                 await interaction.send(embed=initial_embed)
 
         except Exception as e:
-            raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank, platform)
+            raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank, platform, SearchErrorCommandType.Search)
 
     @searchmany.error
     async def on_searchmany_error(self, interaction: nextcord.Interaction, error):
@@ -241,7 +241,7 @@ class Warframe(commands.Cog):
             await interaction.send(embed=embed)
 
         except Exception as e:
-            raise SearchError(e, self.wfm_cache, url_name, None, mod_rank, platform)
+            raise SearchError(e, self.wfm_cache, url_name, None, mod_rank, platform, SearchErrorCommandType.Average)
 
     @average.error
     async def on_average_error(self, interaction: nextcord.Interaction, error):

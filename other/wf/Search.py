@@ -8,6 +8,7 @@ from main import bot_basic_color
 
 from typing import Iterable
 from datetime import datetime
+import enum
 
 from other.wf.utils import WFMHOST
 
@@ -16,6 +17,11 @@ from other.wf.utils import is_mod, platforms_visualized_wfm
 from other.wf.wfm_watchlist import to_item_name
 
 from other.utils import disable_buttons    
+
+class SearchErrorCommandType(enum.Enum):
+    # whether the error occured in the average or search command
+    Search = 1
+    Average = 2
 
 class SearchError(Exception):
     def __init__(
@@ -26,6 +32,7 @@ class SearchError(Exception):
             search_filter: str,
             mod_rank: int,
             platform: str,
+            cmd_type: SearchErrorCommandType,
             *args: object
         ) -> None:
         super().__init__(*args)
@@ -36,6 +43,7 @@ class SearchError(Exception):
         self.search_filter = search_filter
         self.mod_rank = mod_rank
         self.platform = platform
+        self.command_type = cmd_type
 
 class WFMSearch:
 
@@ -416,9 +424,12 @@ class WFMSearch:
 
 
         elif isinstance(error, IndexError):
-            title = "No Offers"
-            desc = f"{search_error.actual_name} has no listings! (filter: {search_error.search_filter}{', rank: {}'. format(search_error.mod_rank) if await is_mod(search_error.url_name, search_error.wfm_cache) else ''})"
-
+            if search_error.command_type is SearchErrorCommandType.Search:
+                title = "No Offers"
+                desc = f"{search_error.actual_name} has no listings! (filter: {search_error.search_filter}{', rank: {}'. format(search_error.mod_rank) if await is_mod(search_error.url_name, search_error.wfm_cache) else ''})"
+            else: # SearchErrorCommandType.Average
+                title = "No Sales"
+                desc = f"{search_error.actual_name} had no sales in the last 48 hours! (filter: {search_error.search_filter}{', rank: {}'. format(search_error.mod_rank) if await is_mod(search_error.url_name, search_error.wfm_cache) else ''})"
 
         elif isinstance(error, ModRankError):
             title = "Invalid Mod Rank"

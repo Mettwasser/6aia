@@ -1,6 +1,6 @@
 from other.wf.Average import ItemAverage
 from other.wf.VoidFissures import VoidFissures
-from other.wf.Search import WFMSearch, SearchError
+from other.wf.Search import WFMSearch, SearchError, SearchErrorCommandType
 from other.wf.utils import check_mod_rank, is_mod, wfm_autocomplete, set_item_urlname, WFMHOST, platforms_visualized
 from other.wf.wfm_watchlist import (
     to_item_name,
