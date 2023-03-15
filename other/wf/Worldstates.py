@@ -2,11 +2,13 @@ import nextcord, aiohttp
 from main import bot_basic_color
 
 class Worldstates:
+    url = "https://api.warframestat.us/pc/?language=en"
+
 
     @staticmethod
     async def get_all() -> nextcord.Embed:
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://api.warframestat.us/pc/?language=en", headers={"language": "en"}) as response:
+            async with session.get(Worldstates.url, headers={"language": "en"}) as response:
                 r = await response.json()
 
         embed = nextcord.Embed(

@@ -22,13 +22,15 @@ class ItemAverage:
         mod_rank: int,
         wfm_cache: WFMCache,
     ) -> ItemAverage:
+        
+        
         r = (await wfm_cache._request(WFMHOST + f"/items/{item_url_name}/statistics", platform=platform))["payload"]["statistics_closed"]["48hours"]
 
         # check if the item has a mod rnak
         await check_mod_rank(wfm_cache, item_url_name, mod_rank)
 
 
-        # filter mod rank
+        # filter out not needed mod ranks
         sales = list(
             filter(
                 lambda item: (

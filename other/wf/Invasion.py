@@ -2,12 +2,14 @@ import nextcord, aiohttp
 from main import bot_basic_color
 
 class Invasion:
+    url = "https://api.warframestat.us/pc/invasions/?language=en"
+
 
     @staticmethod
-    async def get_current(platform: str):
+    async def get_current():
         async with aiohttp.ClientSession() as session:
             async with session.get(
-                f"https://api.warframestat.us/{platform}/invasions/?language=en",
+                Invasion.url,
                 headers={"language": "en"},
             ) as resp:
                 if resp.status != 200:

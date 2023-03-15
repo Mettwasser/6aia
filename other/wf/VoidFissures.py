@@ -6,6 +6,8 @@ from other.utils import Align
 from other.wf.utils import platforms_visualized
 
 class VoidFissures:
+    url = "https://api.warframestat.us/pc/fissures/?language=en"
+
 
     @staticmethod
     def general_filter(mission):
@@ -38,10 +40,9 @@ class VoidFissures:
         return False
 
     @staticmethod
-    async def get_current(platform) -> nextcord.Embed:
-        link = f"https://api.warframestat.us/{platform}/fissures/?language=en"
+    async def get_current() -> nextcord.Embed:
         async with aiohttp.ClientSession() as session:
-            async with session.get(link, headers={"language": "en"}) as r:
+            async with session.get(VoidFissures.url, headers={"language": "en"}) as r:
 
                 if r.status == 200:
                     rj = await r.json()
@@ -66,7 +67,7 @@ class VoidFissures:
         sorted(shouldnt_run, key=lambda item: "Steel Path" in item, reverse=True)
 
         embed = nextcord.Embed(
-            title=f"Active Fissures ({platforms_visualized[platform]})",
+            title=f"Active Fissures",
             description=f"**Fissures you SHOULD run:**\n\n```{Align.alignmany(connectors, *should_run, amount_newlines=2)}```" +
                         f"\n\n\n**Fissures you SHOULDN'T run:**```\n\n{Align.alignmany(connectors, *shouldnt_run, amount_newlines=2)}```"
             if should_run

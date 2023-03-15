@@ -31,6 +31,7 @@ async def is_mod(
     url_name: str,
     wfm_cache: WFMCache,
 ):
+    
     json_content = await wfm_cache._request(WFMHOST + f"/items/{url_name}")
     return "mod_max_rank" in json_content["payload"]["item"]["items_in_set"][0]
 
@@ -39,6 +40,13 @@ platforms_visualized = {
     "xb1": "Xbox",
     "pc": "PC",
     "swi": "Switch",
+}
+
+platforms_visualized_wfm = {
+    "ps4": "PlayStation",
+    "xbox": "Xbox",
+    "pc": "PC",
+    "switch": "Switch",
 }
 
 

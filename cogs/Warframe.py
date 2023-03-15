@@ -99,7 +99,7 @@ class Warframe(commands.Cog):
             await interaction.send(content=None, embed=embed)
 
         except Exception as e:
-            raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank)
+            raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank, platform)
 
     @search.error
     async def on_search_error(self, interaction: nextcord.Interaction, error):
@@ -186,7 +186,7 @@ class Warframe(commands.Cog):
                 await interaction.send(embed=initial_embed)
 
         except Exception as e:
-            raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank)
+            raise SearchError(e, self.wfm_cache, url_name, search_filter, mod_rank, platform)
 
     @searchmany.error
     async def on_searchmany_error(self, interaction: nextcord.Interaction, error):
@@ -241,7 +241,7 @@ class Warframe(commands.Cog):
             await interaction.send(embed=embed)
 
         except Exception as e:
-            raise SearchError(e, self.wfm_cache, actual_name, None, mod_rank)
+            raise SearchError(e, self.wfm_cache, url_name, None, mod_rank, platform)
 
     @average.error
     async def on_average_error(self, interaction: nextcord.Interaction, error):
@@ -336,7 +336,7 @@ class Warframe(commands.Cog):
                 f"Failed to add the item: `{actual_name}{' ({})'.format(mod_rank) if item_is_mod else ''}` because it is already added."
             )
         except Exception as e:
-            raise SearchError(e, self.wfm_cache, url_name, None, mod_rank)
+            raise SearchError(e, self.wfm_cache, url_name, None, mod_rank, platform)
 
     @_wl_add.error
     async def on_average_error(interaction: nextcord.Interaction, error):
@@ -459,19 +459,8 @@ class Warframe(commands.Cog):
     async def fissures(
         self,
         interaction: nextcord.Interaction,
-        platform: str = nextcord.SlashOption(
-            name="platform",
-            description="The platform you're playing on.",
-            choices={
-                "playstation": "ps4",
-                "xbox": "xb1",
-                "pc": "pc",
-                "switch": "swi",
-            },
-            default="pc",
-        ),
     ):
-        embed = await VoidFissures.get_current(platform)
+        embed = await VoidFissures.get_current()
         await interaction.send(embed=embed)
 
     # WORLD STATES
@@ -486,96 +475,24 @@ class Warframe(commands.Cog):
     async def baro(
         self,
         interaction: nextcord.Interaction,
-        platform: str = nextcord.SlashOption(
-            name="platform",
-            description="The platform you're playing on.",
-            choices={
-                "playstation": "ps4",
-                "xbox": "xb1",
-                "pc": "pc",
-                "switch": "swi",
-            },
-            default="pc",
-        ),
     ):
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                f"https://api.warframestat.us/{platform}/voidTrader/?language=en",
-                headers={"language": "en"},
-            ) as resp:
-                if resp.status != 200:
-                    embed = nextcord.Embed(
-                        title="Error",
-                        description="Something went wrong while fetching the data! This is most likely an API error.",
-                        color=bot_basic_color,
-                    )
-                    return await interaction.send(embed=embed)
-                json_content = await resp.json()
-
-        inventory = json_content["inventory"]
-
-        if not inventory:
-            embed = nextcord.Embed(
-                title="Baro is not here yet!",
-                description=f"**Time until Baro arrives at {json_content['location']}**\n{json_content['startString']}",
-                color=bot_basic_color,
-            )
-            return await interaction.send(embed=embed)
-
-        embed = nextcord.Embed(
-            title="Baro's Inventory",
-            description="",
-            color=bot_basic_color,
-            timestamp=nextcord.utils.utcnow(),
-        )
-        for item in inventory:
-            embed.add_field(
-                name=item["item"],
-                value=f"<:ducats:885579733939667024> {item['ducats']}\n<:credits:885576185034194954> {item['credits']}",
-            )
-        embed.set_thumbnail(
-            url="https://static.wikia.nocookie.net/warframe/images/a/a7/TennoCon2020BaroCropped.png/revision/latest/scale-to-width-down/350?cb=20200712232455"
-        )
-        embed.url = "https://warframe.fandom.com/wiki/Baro_Ki%27Teer"
+        embed = await Baro.get_current()
         await interaction.send(embed=embed)
 
     @wf.subcommand(name="sortie", description="Shows you the current sortie.")
     async def sortie(
         self,
         interaction: nextcord.Interaction,
-        platform: str = nextcord.SlashOption(
-            name="platform",
-            description="The platform you're playing on.",
-            choices={
-                "playstation": "ps4",
-                "xbox": "xb1",
-                "pc": "pc",
-                "switch": "swi",
-            },
-            default="pc",
-        ),
     ):
-        embed = await Sortie.get_current(platform)
+        embed = await Sortie.get_current()
         await interaction.send(embed=embed)
 
     @wf.subcommand(name="invasions", description="Shows you the current invasions.")
     async def invasions(
         self,
         interaction: nextcord.Interaction,
-        platform: str = nextcord.SlashOption(
-            name="platform",
-            description="The platform you're playing on.",
-            choices={
-                "playstation": "ps4",
-                "xbox": "xb1",
-                "pc": "pc",
-                "switch": "swi",
-            },
-            default="pc",
-        ),
     ):
-        embed = await Invasion.get_current(platform)
+        embed = await Invasion.get_current()
         await interaction.send(embed=embed)
 
     @wf.subcommand(
@@ -584,19 +501,8 @@ class Warframe(commands.Cog):
     async def arbitration(
         self,
         interaction: nextcord.Interaction,
-        platform: str = nextcord.SlashOption(
-            name="platform",
-            description="The platform you're playing on.",
-            choices={
-                "playstation": "ps4",
-                "xbox": "xb1",
-                "pc": "pc",
-                "switch": "swi",
-            },
-            default="pc",
-        ),
     ):
-        embed: nextcord.Embed = await Arbitration.get_current(platform)
+        embed: nextcord.Embed = await Arbitration.get_current()
         await interaction.send(embed=embed)
 
 
