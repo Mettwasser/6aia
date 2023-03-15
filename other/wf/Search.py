@@ -430,6 +430,5 @@ class WFMSearch:
             desc = f"```Ignoring exception in command {interaction.application_command}\n{type(error)} {error} {error.__traceback__}```\nReport to dev.",
 
 
-        print(search_error.platform)
         title += f" ({platforms_visualized_wfm[search_error.platform]})"
         await interaction.send(embed=nextcord.Embed(title=title, description=desc, color=bot_basic_color))
