@@ -10,13 +10,13 @@ from typing import Iterable
 from datetime import datetime
 import enum
 
-from other.wf.utils import WFMHOST
+from src.wf.utils import WFMHOST
 
-from other.wf.Errors import ModRankError, ItemNotFound
-from other.wf.utils import is_mod, platforms_visualized_wfm
-from other.wf.wfm_watchlist import to_item_name
+from src.wf.Errors import ModRankError, ItemNotFound
+from src.wf.utils import is_mod, platforms_visualized_wfm
+from src.wf.wfm_watchlist import to_item_name
 
-from other.utils import disable_buttons    
+from src.utils import disable_buttons    
 
 class SearchErrorCommandType(enum.Enum):
     # whether the error occured in the average or search command

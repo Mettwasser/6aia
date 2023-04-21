@@ -1,12 +1,13 @@
 import asyncio
+import re
 import asqlite, nextcord, datetime
 from discord import Interaction
-from other.utils import disable_buttons, to_timestamp
-from other.wf.utils import ModRankError, check_mod_rank, WFMHOST, platforms_visualized
+from src.utils import disable_buttons, to_timestamp
+from src.wf.utils import ModRankError, check_mod_rank, WFMHOST, platforms_visualized
 from main import bot_basic_color
 from nextcord.ext import application_checks
 from io import StringIO
-from other.WFMCache import WFMCache
+from src.WFMCache import WFMCache
 DB = "wfm_wl.db"
 
 
@@ -188,10 +189,10 @@ async def export_as_file(interaction: Interaction, wfm_cache: WFMCache):
     )
 
     embed: nextcord.Embed
-    string = embed.description.replace("**", "")
-    sio = StringIO(header + string)
+    string = re.sub(r"\n<t:\d+:\w>", r"", embed.description.replace("**", ""))
+    buffer = StringIO(header + string)
     file = nextcord.File(
-        sio,
+        buffer,
         filename=f"wl-{nextcord.utils.utcnow().date()}.txt",
         description=f"The prices of your watchlist {nextcord.utils.utcnow().date()}",
     )

@@ -5,10 +5,10 @@ import aiohttp
 import asyncio
 import sqlite3
 
-from other.utils import Align
-from other.wf import *
-from other.WFMCache import WFMCache
-from other.DeferTimer import DeferTimer
+from src.utils import Align
+from src.wf import *
+from src.WFMCache import WFMCache
+from src.DeferTimer import DeferTimer
 
 from nextcord.ext import commands
 from datetime import datetime

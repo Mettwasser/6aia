@@ -2,13 +2,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from WFMCache import WFMCache
-from other.WFMCache import WFMCache
+from src.WFMCache import WFMCache
 WFMHOST = "https://api.warframe.market/v1"
 import difflib
 import requests
 import nextcord
 
-from other.wf.Errors import ModRankError
+from src.wf.Errors import ModRankError
 
 item_dict: dict = requests.get(WFMHOST + "/items").json()["payload"]["items"]
 item_names = [x["item_name"] for x in item_dict]

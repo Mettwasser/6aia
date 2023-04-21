@@ -226,7 +226,7 @@ class Admin(commands.Cog):
     )
     async def init(self, interaction: nextcord.Interaction):
         from .Warns import create_warn_table
-        from other.wf.wfm_watchlist import create_wl_table
+        from src.wf.wfm_watchlist import create_wl_table
 
         await create_warn_table()
         await create_wl_table()

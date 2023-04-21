@@ -3,7 +3,7 @@ from discord import Forbidden
 from nextcord.ext import commands, application_checks
 from nextcord.errors import ApplicationCheckFailure, ApplicationInvokeError
 
-from other.wf.Errors import APIError
+from src.wf.Errors import APIError
 from main import bot_basic_color
 
 class ErrorHandler(commands.Cog):

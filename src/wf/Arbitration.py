@@ -1,7 +1,7 @@
 import aiohttp, datetime
 from main import bot_basic_color
 from nextcord import Embed, utils
-from other.wf.Errors import APIError
+from src.wf.Errors import APIError
 
 class Arbitration:
 

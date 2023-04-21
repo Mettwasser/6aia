@@ -2,8 +2,8 @@
 import datetime
 import aiohttp, nextcord, re
 from main import bot_basic_color
-from other.utils import Align
-from other.wf.utils import platforms_visualized
+from src.utils import Align
+from src.wf.utils import platforms_visualized
 
 class VoidFissures:
     url = "https://api.warframestat.us/pc/fissures/?language=en"

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from WFMCache import WFMCache
 
-from other.wf.utils import check_mod_rank, WFMHOST
+from src.wf.utils import check_mod_rank, WFMHOST
 
 
 

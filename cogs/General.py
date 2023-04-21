@@ -1,7 +1,7 @@
 import nextcord
 from nextcord.ext import commands, application_checks
 from main import bot_basic_color
-from other.HelpCmd import HelpCmd
+from src.HelpCmd import HelpCmd
 
 
 class General(commands.Cog):
